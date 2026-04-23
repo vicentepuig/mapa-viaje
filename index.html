@@ -110,6 +110,23 @@ canvas { display: block; position: fixed; inset: 0; width: 100%; height: 100%; t
 .tr-name { font-size: .78rem; font-weight: 600; color: #341A02; }
 .tr-detail { font-size: .7rem; color: rgba(52,26,2,.55); margin-top: 2px; line-height: 1.4; }
 
+/* Passengers */
+.passengers {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pax-row {
+  background: rgba(52,26,2,.04);
+  border: 0.75px solid rgba(52,26,2,.12);
+  padding: 7px 10px;
+}
+.pax-name  { font-size: .72rem; font-weight: 600; color: #341A02; }
+.pax-field { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+.pax-label { font-size: .58rem; font-weight: 600; color: rgba(52,26,2,.4); letter-spacing: .05em; text-transform: uppercase; }
+.pax-val   { font-size: .68rem; color: #341A02; font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+
 /* Notes */
 .notes-box {
   background: rgba(52,26,2,.05);
@@ -218,7 +235,10 @@ const CITY_INFO = {
     stay: 'Casa de Beto & Pablo', stayLabel: 'Casa de amigo',
     transport: [
       { type:'flight', name:'AV 18 — Llegada', detail:'Bogotá (BOG) → Barcelona (BCN)\n21 mayo · llega ~8:45 AM' },
-      { type:'flight', name:'KL 1510 — Salida', detail:'Barcelona (BCN) → Amsterdam (AMS)\n26 mayo · 6:20 AM → 8:35 AM' },
+      { type:'flight', name:'KL 1510 — Salida', detail:'Barcelona (BCN) → Amsterdam (AMS)\n26 mayo · 6:20 AM → 8:35 AM', passengers:[
+        { name:'Ignacio Andrés Rodríguez Sepúlveda', reserva:'YQ2W6R', billete:'0742137220987', ff:null },
+        { name:'Vicente Javier Puig Hortal',         reserva:'YQ2W6R', billete:'0742137220986', ff:'005344916930' },
+      ]},
       { type:'flight', name:'AV 19 — Regreso', detail:'Barcelona (BCN) → Bogotá (BOG)\n13 junio · 1:50 PM → 5:45 PM' },
     ],
     notes: 'Estadía ida: 21–26 mayo (5 noches). Regreso desde Innsbruck en tren el 10 junio con parada en Lyon. Vuelo de regreso a Santiago el 13 junio.',
@@ -229,7 +249,10 @@ const CITY_INFO = {
     departure: { date:'29 mayo', time:'Por definir' },
     stay: 'Quentin Museum Square Hotel\nRoemer Visscherstraat 30, Oud-West\n1054 EZ Ámsterdam\n+31 20 689 2323', stayLabel: 'Hotel',
     transport: [
-      { type:'flight', name:'KL 1510 — Llegada', detail:'Barcelona (BCN) → Amsterdam (AMS)\n26 mayo · 6:20 AM → 8:35 AM' },
+      { type:'flight', name:'KL 1510 — Llegada', detail:'Barcelona (BCN) → Amsterdam (AMS)\n26 mayo · 6:20 AM → 8:35 AM', passengers:[
+        { name:'Ignacio Andrés Rodríguez Sepúlveda', reserva:'YQ2W6R', billete:'0742137220987', ff:null },
+        { name:'Vicente Javier Puig Hortal',         reserva:'YQ2W6R', billete:'0742137220986', ff:'005344916930' },
+      ]},
       { type:'train',  name:'Tren — Salida', detail:'Amsterdam → Berlín\n29 mayo · horario por definir' },
     ],
     notes: '3 noches. Habitación Doble Estándar. Check-in 15:00–23:00 · Check-out 11:00. CL$ 447.718.',
@@ -444,14 +467,24 @@ function openSheet(key){
     </div>`;
 
   // Transport
-  const transportHTML=(info.transport||[]).map(t=>`
+  const transportHTML=(info.transport||[]).map(t=>{
+    const paxHTML=(t.passengers||[]).map(p=>`
+      <div class="pax-row">
+        <div class="pax-name">${p.name}</div>
+        <div class="pax-field"><span class="pax-label">Reserva</span><span class="pax-val">${p.reserva}</span></div>
+        <div class="pax-field"><span class="pax-label">Billete</span><span class="pax-val">${p.billete}</span></div>
+        ${p.ff?`<div class="pax-field"><span class="pax-label">Viajero frecuente</span><span class="pax-val">${p.ff}</span></div>`:''}
+      </div>`).join('');
+    return `
     <div class="transport-row">
       <div class="tr-icon">${t.type==='flight'?IC.flightUi:IC.trainUi}</div>
       <div class="tr-body">
         <div class="tr-name">${t.name}</div>
         <div class="tr-detail">${t.detail.replace(/\n/g,'<br>')}</div>
+        ${paxHTML?`<div class="passengers">${paxHTML}</div>`:''}
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 
   // Stay
   const stayHTML=info.stayLabel?`
