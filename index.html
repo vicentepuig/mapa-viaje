@@ -109,6 +109,16 @@ canvas { display: block; position: fixed; inset: 0; width: 100%; height: 100%; t
 .tr-body { flex: 1; }
 .tr-name { font-size: .78rem; font-weight: 600; color: #341A02; }
 .tr-detail { font-size: .7rem; color: rgba(52,26,2,.55); margin-top: 2px; line-height: 1.4; }
+.tr-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.pdf-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: .6rem; font-weight: 600; color: #341A02;
+  border: 0.75px solid #341A02; padding: 2px 7px;
+  text-decoration: none; flex-shrink: 0;
+  letter-spacing: .03em;
+  transition: background .15s;
+}
+.pdf-btn:active { background: rgba(52,26,2,.08); }
 
 /* Passengers */
 .passengers {
@@ -212,8 +222,20 @@ const CITY_INFO = {
     departure: { date:'20 mayo',  time:'6:40 AM' },
     stay: 'Casa propia', stayLabel: 'Casa propia',
     transport: [
-      { type:'flight', name:'AV 98 — Salida', detail:'Santiago (SCL) → Bogotá (BOG)\n20 mayo · 6:40 AM → 11:30 AM' },
-      { type:'flight', name:'AV 97 — Regreso', detail:'Bogotá (BOG) → Santiago (SCL)\n13 junio · 9:35 PM → 4:45 AM +1' },
+      { type:'flight', name:'AV 98 — Salida', detail:'Santiago (SCL) → Bogotá (BOG)\n20 mayo · 06:10 → 11:10 · Terminal 2', pdf:[
+          {label:'Pasaje Ignacio', url:'pasaje-ignacio-avianca.pdf'},
+          {label:'Pasaje Vicente', url:'pasaje-vicente-avianca.pdf'},
+        ], passengers:[
+          { name:'Ignacio Andrés Rodríguez Sepúlveda', reserva:'CAIBH6', billete:'202 2488482707', ff:null, maleta:'No incluida' },
+          { name:'Vicente Javier Puig Hortal',         reserva:'CAIBH6', billete:'202 2488482706', ff:'005344916930', maleta:'1 bolso 23 kg' },
+        ]},
+      { type:'flight', name:'AV 97 — Regreso', detail:'Bogotá (BOG) → Santiago (SCL)\n13 junio · 21:40 → 04:15 +1 · Terminal 1', pdf:[
+          {label:'Pasaje Ignacio', url:'pasaje-ignacio-avianca.pdf'},
+          {label:'Pasaje Vicente', url:'pasaje-vicente-avianca.pdf'},
+        ], passengers:[
+          { name:'Ignacio Andrés Rodríguez Sepúlveda', reserva:'CAIBH6', billete:'202 2488482707', ff:null, maleta:'No incluida' },
+          { name:'Vicente Javier Puig Hortal',         reserva:'CAIBH6', billete:'202 2488482706', ff:'005344916930', maleta:'1 bolso 23 kg' },
+        ]},
     ],
     notes: 'Ciudad de origen. Vuelo de ida con escala en Bogotá. Regreso directo desde Bogotá.',
     badges: ['stay'],
@@ -223,8 +245,20 @@ const CITY_INFO = {
     departure: { date:'20 mayo', time:'3:35 PM' },
     stay: 'Aeropuerto El Dorado', stayLabel: null,
     transport: [
-      { type:'flight', name:'AV 98 — Llegada', detail:'Santiago (SCL) → Bogotá (BOG)\n20 mayo · 6:40 AM → 11:30 AM' },
-      { type:'flight', name:'AV 18 — Salida', detail:'Bogotá (BOG) → Barcelona (BCN)\n20 mayo · 3:35 PM → 8:45 AM +1' },
+      { type:'flight', name:'AV 98 — Llegada', detail:'Santiago (SCL) → Bogotá (BOG)\n20 mayo · 06:10 → 11:10 · Terminal 1', pdf:[
+          {label:'Pasaje Ignacio', url:'pasaje-ignacio-avianca.pdf'},
+          {label:'Pasaje Vicente', url:'pasaje-vicente-avianca.pdf'},
+        ], passengers:[
+          { name:'Ignacio Andrés Rodríguez Sepúlveda', reserva:'CAIBH6', billete:'202 2488482707', ff:null, maleta:'No incluida' },
+          { name:'Vicente Javier Puig Hortal',         reserva:'CAIBH6', billete:'202 2488482706', ff:'005344916930', maleta:'1 bolso 23 kg' },
+        ]},
+      { type:'flight', name:'AV 18 — Salida', detail:'Bogotá (BOG) → Barcelona (BCN)\n20 mayo · 16:00 → 09:00 +1 · Terminal 1', pdf:[
+          {label:'Pasaje Ignacio', url:'pasaje-ignacio-avianca.pdf'},
+          {label:'Pasaje Vicente', url:'pasaje-vicente-avianca.pdf'},
+        ], passengers:[
+          { name:'Ignacio Andrés Rodríguez Sepúlveda', reserva:'CAIBH6', billete:'202 2488482707', ff:null, maleta:'No incluida' },
+          { name:'Vicente Javier Puig Hortal',         reserva:'CAIBH6', billete:'202 2488482706', ff:'005344916930', maleta:'1 bolso 23 kg' },
+        ]},
     ],
     notes: 'Escala de 4h 5min en el aeropuerto. No se sale del terminal.',
     badges: ['flight'],
@@ -234,12 +268,24 @@ const CITY_INFO = {
     departure: { date:'26 mayo', time:'6:20 AM' },
     stay: 'Casa de Beto & Pablo', stayLabel: 'Casa de amigo',
     transport: [
-      { type:'flight', name:'AV 18 — Llegada', detail:'Bogotá (BOG) → Barcelona (BCN)\n21 mayo · llega ~8:45 AM' },
+      { type:'flight', name:'AV 18 — Llegada', detail:'Bogotá (BOG) → Barcelona (BCN)\n21 mayo · llega 09:00 · Terminal 1', pdf:[
+          {label:'Pasaje Ignacio', url:'pasaje-ignacio-avianca.pdf'},
+          {label:'Pasaje Vicente', url:'pasaje-vicente-avianca.pdf'},
+        ], passengers:[
+          { name:'Ignacio Andrés Rodríguez Sepúlveda', reserva:'CAIBH6', billete:'202 2488482707', ff:null, maleta:'No incluida' },
+          { name:'Vicente Javier Puig Hortal',         reserva:'CAIBH6', billete:'202 2488482706', ff:'005344916930', maleta:'1 bolso 23 kg' },
+        ]},
       { type:'flight', name:'KL 1510 — Salida', detail:'Barcelona (BCN) → Amsterdam (AMS)\n26 mayo · 6:20 AM → 8:35 AM', passengers:[
         { name:'Ignacio Andrés Rodríguez Sepúlveda', reserva:'YQ2W6R', billete:'0742137220987', ff:null },
         { name:'Vicente Javier Puig Hortal',         reserva:'YQ2W6R', billete:'0742137220986', ff:'005344916930' },
       ]},
-      { type:'flight', name:'AV 19 — Regreso', detail:'Barcelona (BCN) → Bogotá (BOG)\n13 junio · 1:50 PM → 5:45 PM' },
+      { type:'flight', name:'AV 19 — Regreso', detail:'Barcelona (BCN) → Bogotá (BOG)\n13 junio · 14:00 → 18:10 · Terminal 1', pdf:[
+          {label:'Pasaje Ignacio', url:'pasaje-ignacio-avianca.pdf'},
+          {label:'Pasaje Vicente', url:'pasaje-vicente-avianca.pdf'},
+        ], passengers:[
+          { name:'Ignacio Andrés Rodríguez Sepúlveda', reserva:'CAIBH6', billete:'202 2488482707', ff:null, maleta:'No incluida' },
+          { name:'Vicente Javier Puig Hortal',         reserva:'CAIBH6', billete:'202 2488482706', ff:'005344916930', maleta:'1 bolso 23 kg' },
+        ]},
     ],
     notes: 'Estadía ida: 21–26 mayo (5 noches). Regreso desde Innsbruck en tren el 10 junio con parada en Lyon. Vuelo de regreso a Santiago el 13 junio.',
     badges: ['stay', 'flight'],
@@ -468,18 +514,25 @@ function openSheet(key){
 
   // Transport
   const transportHTML=(info.transport||[]).map(t=>{
+    const pdfHTML=(t.pdf||[]).map(p=>
+      `<a class="pdf-btn" href="${p.url}" target="_blank">↓ ${p.label}</a>`
+    ).join('');
     const paxHTML=(t.passengers||[]).map(p=>`
       <div class="pax-row">
         <div class="pax-name">${p.name}</div>
         <div class="pax-field"><span class="pax-label">Reserva</span><span class="pax-val">${p.reserva}</span></div>
         <div class="pax-field"><span class="pax-label">Billete</span><span class="pax-val">${p.billete}</span></div>
+        <div class="pax-field"><span class="pax-label">Maleta</span><span class="pax-val">${p.maleta}</span></div>
         ${p.ff?`<div class="pax-field"><span class="pax-label">Viajero frecuente</span><span class="pax-val">${p.ff}</span></div>`:''}
       </div>`).join('');
     return `
     <div class="transport-row">
       <div class="tr-icon">${t.type==='flight'?IC.flightUi:IC.trainUi}</div>
       <div class="tr-body">
-        <div class="tr-name">${t.name}</div>
+        <div class="tr-header">
+          <div class="tr-name">${t.name}</div>
+          ${pdfHTML?`<div style="display:flex;gap:4px">${pdfHTML}</div>`:''}
+        </div>
         <div class="tr-detail">${t.detail.replace(/\n/g,'<br>')}</div>
         ${paxHTML?`<div class="passengers">${paxHTML}</div>`:''}
       </div>
