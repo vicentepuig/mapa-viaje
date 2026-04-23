@@ -39,6 +39,42 @@ canvas { display: block; position: fixed; inset: 0; width: 100%; height: 100%; t
 .leg-line { width: 18px; height: 0.75px; flex-shrink: 0; }
 .leg-dot  { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
 
+/* Quick access tags */
+#quick-access {
+  padding: 8px 14px 0;
+  display: flex; gap: 6px; flex-wrap: nowrap;
+  overflow-x: auto; scrollbar-width: none;
+}
+#quick-access::-webkit-scrollbar { display: none; }
+
+.qa-block { flex-shrink: 0; }
+
+.qa-tag {
+  display: flex; align-items: center; gap: 5px;
+  border: 0.75px solid #341A02;
+  padding: 5px 11px;
+  font-size: .7rem; font-weight: 600; color: #341A02;
+  background: #F1F1F1;
+  cursor: pointer; white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  transition: background .15s, color .15s;
+  letter-spacing: .02em;
+}
+.qa-tag.open {
+  background: #341A02; color: #F1F1F1;
+}
+.qa-tag.open svg { fill: #F1F1F1; }
+
+.qa-panel {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .3s cubic-bezier(.32,.72,0,1);
+  border: 0.75px solid #341A02;
+  border-top: none;
+}
+.qa-panel.open { max-height: 300px; }
+.qa-panel-inner { padding: 10px 12px 12px; }
+
 /* Timeline strip */
 #bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 20; padding-bottom: env(safe-area-inset-bottom, 0px); }
 #timeline-scroll {
@@ -204,7 +240,10 @@ canvas { display: block; position: fixed; inset: 0; width: 100%; height: 100%; t
   </div>
 </div>
 
-<div id="bottom-bar"><div id="timeline-scroll"></div></div>
+<div id="bottom-bar">
+  <div id="quick-access"></div>
+  <div id="timeline-scroll"></div>
+</div>
 
 <div id="sheet-backdrop" onclick="closeSheet()"></div>
 <div id="sheet">
@@ -602,20 +641,6 @@ function openSheet(key){
       <div class="notes-box"><p>${info.notes}</p></div>
     </div>
 
-    <div class="divider"></div>
-    <div class="sc-section">
-      <div class="sc-label">Seguro de Viaje</div>
-      <div class="insurance-row">
-        <div class="insurance-info">
-          <div class="insurance-name">${INSURANCE.nombre}</div>
-          <div class="insurance-sub">${INSURANCE.cobertura}</div>
-        </div>
-        ${INSURANCE.pdf
-          ? `<a class="pdf-btn" href="${INSURANCE.pdf}" target="_blank">↓ Ver PDF</a>`
-          : `<span class="pdf-btn-pending">↓ PDF pendiente</span>`}
-      </div>
-    </div>
-
     <div class="badges">${badges}</div>
   `;
 
@@ -633,6 +658,59 @@ function closeSheet(){
 let sheetStartY=0;
 sheet.addEventListener('touchstart', e=>{ sheetStartY=e.touches[0].clientY; },{passive:true});
 sheet.addEventListener('touchmove',  e=>{ if(e.touches[0].clientY-sheetStartY>60) closeSheet(); },{passive:true});
+
+// ── Quick access tags ─────────────────────────────────────────────────────────
+const QUICK_ITEMS = [
+  {
+    id: 'seguro',
+    label: 'Seguro de Viaje',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" height="12" viewBox="0 -960 960 960" width="12" fill="#341A02"><path d="M480-80q-139-35-229.5-159.5T160-516v-244l320-120 320 120v244q0 152-90.5 276.5T480-80Z"/></svg>`,
+    render: () => {
+      const btn = INSURANCE.pdf
+        ? `<a class="pdf-btn" href="${INSURANCE.pdf}" target="_blank">↓ Ver PDF</a>`
+        : `<span class="pdf-btn-pending">↓ PDF pendiente</span>`;
+      return `
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <div>
+            <div style="font-size:.78rem;font-weight:600;color:#341A02">${INSURANCE.nombre}</div>
+            <div style="font-size:.68rem;color:rgba(52,26,2,.5);margin-top:2px">${INSURANCE.cobertura}</div>
+          </div>
+          ${btn}
+        </div>`;
+    },
+  },
+  // Agrega más items aquí cuando sea necesario
+];
+
+const qaContainer = document.getElementById('quick-access');
+QUICK_ITEMS.forEach(item => {
+  const block = document.createElement('div');
+  block.className = 'qa-block';
+
+  const tag = document.createElement('div');
+  tag.className = 'qa-tag';
+  tag.innerHTML = `${item.icon} ${item.label}`;
+
+  const panel = document.createElement('div');
+  panel.className = 'qa-panel';
+  panel.innerHTML = `<div class="qa-panel-inner">${item.render()}</div>`;
+
+  tag.addEventListener('click', () => {
+    const isOpen = tag.classList.contains('open');
+    // Cierra todos
+    document.querySelectorAll('.qa-tag').forEach(t => t.classList.remove('open'));
+    document.querySelectorAll('.qa-panel').forEach(p => p.classList.remove('open'));
+    // Abre este si estaba cerrado
+    if (!isOpen) {
+      tag.classList.add('open');
+      panel.classList.add('open');
+    }
+  });
+
+  block.appendChild(tag);
+  block.appendChild(panel);
+  qaContainer.appendChild(block);
+});
 
 // ── Timeline ──────────────────────────────────────────────────────────────────
 const tlScroll=document.getElementById('timeline-scroll');
