@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
@@ -7,8 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+<script src="d3.min.js"></script>
+<script src="topojson.min.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body {
@@ -135,6 +135,19 @@ canvas { display: block; position: fixed; inset: 0; width: 100%; height: 100%; t
 .date-val   { font-size: .78rem; font-weight: 500; color: #341A02; }
 .date-time  { font-size: .68rem; color: rgba(52,26,2,.55); margin-top: 1px; }
 
+/* Places */
+.places-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.place-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  border: 0.75px solid rgba(52,26,2,.3); padding: 4px 10px;
+  font-size: .68rem; font-weight: 500; color: #341A02;
+  text-decoration: none; letter-spacing: .01em;
+  transition: background .12s, border-color .12s;
+  -webkit-tap-highlight-color: transparent;
+}
+.place-tag:active { background: #341A02; color: #F1F1F1; border-color: #341A02; }
+.place-tag svg { flex-shrink: 0; }
+
 /* Transport rows */
 .transport-row {
   display: flex; align-items: flex-start; gap: 10px;
@@ -152,9 +165,11 @@ canvas { display: block; position: fixed; inset: 0; width: 100%; height: 100%; t
   border: 0.75px solid #341A02; padding: 2px 7px;
   text-decoration: none; flex-shrink: 0;
   letter-spacing: .03em;
-  transition: background .15s;
+  transition: background .12s, color .12s, border-color .12s;
 }
-.pdf-btn:active { background: rgba(52,26,2,.08); }
+.pdf-btn:active                    { background: rgba(52,26,2,.08); }
+.pdf-btn[data-type="flight"]:active { background: #00AAFF; color: #341A02; border-color: #00AAFF; }
+.pdf-btn[data-type="train"]:active  { background: #FF4400; color: #341A02; border-color: #FF4400; }
 
 /* Passengers */
 .passengers {
@@ -321,6 +336,17 @@ const CITY_INFO = {
     arrival:   { date:'21 mayo', time:'~8:45 AM' },
     departure: { date:'26 mayo', time:'6:20 AM' },
     stay: 'Casa de Beto & Pablo', stayLabel: 'Casa de amigo',
+    guide: 'https://maps.apple.com/place?q=ncMy08f8Jepn4BWvubT2bC',
+    places: [
+      { name:'Sagrada Família',       lat:41.4036, lng: 2.1744 },
+      { name:'Park Güell',            lat:41.4145, lng: 2.1527 },
+      { name:'La Boqueria',           lat:41.3818, lng: 2.1720 },
+      { name:'Barrio Gótico',         lat:41.3833, lng: 2.1765 },
+      { name:'Casa Batlló',           lat:41.3917, lng: 2.1649 },
+      { name:'El Born',               lat:41.3851, lng: 2.1827 },
+      { name:'Barceloneta',           lat:41.3763, lng: 2.1895 },
+      { name:'Palau de la Música',    lat:41.3875, lng: 2.1750 },
+    ],
     transport: [
       { type:'flight', name:'AV 18 — Llegada', detail:'Bogotá (BOG) → Barcelona (BCN)\n21 mayo · llega 09:00 · Terminal 1', pdf:[
           {label:'Pasaje Ignacio', url:'pasaje-ignacio-avianca.pdf'},
@@ -348,11 +374,17 @@ const CITY_INFO = {
     arrival:   { date:'26 mayo', time:'8:35 AM' },
     departure: { date:'29 mayo', time:'Por definir' },
     stay: 'Quentin Museum Square Hotel\nRoemer Visscherstraat 30, Oud-West\n1054 EZ Ámsterdam\n+31 20 689 2323', stayLabel: 'Hotel',
+    guide: 'https://maps.apple.com/place?q=RrFwVb84uy69sFHXwvfqqD',
+    places: [
+      { name:'Rijksmuseum',           lat:52.3600, lng: 4.8852 },
+      { name:'Van Gogh Museum',       lat:52.3584, lng: 4.8811 },
+      { name:'Casa de Ana Frank',     lat:52.3752, lng: 4.8840 },
+      { name:'Canales (Jordaan)',      lat:52.3737, lng: 4.8839 },
+      { name:'Vondelpark',            lat:52.3580, lng: 4.8686 },
+      { name:'Mercado Albert Cuyp',   lat:52.3554, lng: 4.8952 },
+      { name:'NDSM Wharf',            lat:52.4008, lng: 4.8988 },
+    ],
     transport: [
-      { type:'flight', name:'KL 1510 — Llegada', detail:'Barcelona (BCN) → Amsterdam (AMS)\n26 mayo · 6:20 AM → 8:35 AM · Terminal 1', passengers:[
-        { name:'Ignacio Andrés Rodríguez Sepúlveda', reserva:'YQ2W6R', billete:'0742137220987', ff:null,           maleta:'Por confirmar' },
-        { name:'Vicente Javier Puig Hortal',         reserva:'YQ2W6R', billete:'0742137220986', ff:'005344916930', maleta:'Por confirmar' },
-      ]},
       { type:'train',  name:'Tren — Salida', detail:'Amsterdam → Berlín\n29 mayo · horario por definir' },
     ],
     notes: '3 noches. Habitación Doble Estándar. Check-in 15:00–23:00 · Check-out 11:00. CL$ 447.718.',
@@ -362,6 +394,17 @@ const CITY_INFO = {
     arrival:   { date:'29 mayo', time:'Por definir' },
     departure: { date:'6 junio', time:'Por definir' },
     stay: 'Casa de Benja', stayLabel: 'Casa de amigo',
+    guide: 'https://maps.apple.com/place?q=X5PkkyP7s102Brc9bn.hDC',
+    places: [
+      { name:'Puerta de Brandenburgo', lat:52.5163, lng:13.3777 },
+      { name:'East Side Gallery',      lat:52.5051, lng:13.4398 },
+      { name:'Checkpoint Charlie',     lat:52.5075, lng:13.3904 },
+      { name:'Museo de Pérgamo',       lat:52.5211, lng:13.3968 },
+      { name:'Tiergarten',             lat:52.5144, lng:13.3501 },
+      { name:'Alexanderplatz',         lat:52.5219, lng:13.4132 },
+      { name:'Neukölln',               lat:52.4783, lng:13.4346 },
+      { name:'Markthalle Neun',        lat:52.4986, lng:13.4210 },
+    ],
     transport: [
       { type:'train', name:'Tren — Llegada', detail:'Amsterdam → Berlín\n29 mayo · horario por definir' },
       { type:'train', name:'Tren — Salida',  detail:'Berlín → Innsbruck\n6 junio · horario por definir' },
@@ -373,6 +416,14 @@ const CITY_INFO = {
     arrival:   { date:'6 junio',  time:'Por definir' },
     departure: { date:'10 junio', time:'Por definir' },
     stay: 'Casa de Simón', stayLabel: 'Casa de amigo',
+    places: [
+      { name:'Goldenes Dachl',         lat:47.2682, lng:11.3933 },
+      { name:'Hofburg',                lat:47.2679, lng:11.3931 },
+      { name:'Nordkette (Teleférico)', lat:47.3168, lng:11.3913 },
+      { name:'Altstadt',               lat:47.2682, lng:11.3925 },
+      { name:'Ambras Castle',          lat:47.2567, lng:11.4230 },
+      { name:'Bergisel',               lat:47.2478, lng:11.3883 },
+    ],
     transport: [
       { type:'train', name:'Tren — Llegada', detail:'Berlín → Innsbruck\n6 junio · horario por definir' },
       { type:'train', name:'Tren — Salida',  detail:'Innsbruck → Lyon → Barcelona\n10 junio · horario por definir' },
@@ -433,7 +484,7 @@ const canvas = document.getElementById('globe');
 const ctx    = canvas.getContext('2d');
 let W, H, projection, path, world = null;
 let rotation = [-10,-18,0], dragging = false, lastPos = null, lastTouchDist = null;
-let zoomK = 1, autoRotate = true, autoTimer = null;
+let zoomK = 1, autoRotate = false, autoTimer = null, activeCityKey = null;
 
 function getScale(){ return Math.min(W,H) * 0.44 * zoomK; }
 function resize(){ W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; buildProjection(); }
@@ -457,6 +508,7 @@ function draw(){
   ctx.restore();
   ctx.beginPath(); path({type:'Sphere'}); ctx.strokeStyle='#341A02'; ctx.lineWidth=0.75; ctx.stroke();
   ROUTES.forEach(drawArc);
+  if(activeCityKey) drawPlaces(activeCityKey);
   Object.entries(CITIES).forEach(([key,c])=>drawCity(key,c));
 }
 
@@ -475,6 +527,18 @@ function drawArc(route){
   ctx.strokeStyle=color; ctx.lineWidth=0.75;
   if(route.type==='train') ctx.setLineDash([3,3]);
   ctx.stroke(); ctx.setLineDash([]); ctx.restore();
+}
+
+function drawPlaces(cityKey){
+  const info = CITY_INFO[cityKey];
+  if(!info || !info.places) return;
+  info.places.forEach(p=>{
+    if(d3.geoDistance([p.lng,p.lat],[-rotation[0],-rotation[1]])>Math.PI/2) return;
+    const [x,y]=projection([p.lng,p.lat]);
+    ctx.beginPath(); ctx.arc(x,y,2.5,0,2*Math.PI);
+    ctx.fillStyle='#F1F1F1'; ctx.strokeStyle='rgba(52,26,2,.5)'; ctx.lineWidth=0.75;
+    ctx.fill(); ctx.stroke();
+  });
 }
 
 function drawCity(key, city){
@@ -510,10 +574,10 @@ function animate(){
 }
 
 // ── Interaction ───────────────────────────────────────────────────────────────
-function pauseAuto(resume=4000){ autoRotate=false; clearTimeout(autoTimer); if(resume) autoTimer=setTimeout(()=>{autoRotate=true;},resume); }
+function pauseAuto(resume=4000){ autoRotate=false; clearTimeout(autoTimer); }
 
 canvas.addEventListener('mousedown', e=>{ dragging=true; lastPos=[e.clientX,e.clientY]; pauseAuto(0); });
-window.addEventListener('mouseup',   ()=>{ dragging=false; autoTimer=setTimeout(()=>{autoRotate=true;},4000); });
+window.addEventListener('mouseup',   ()=>{ dragging=false; // autoRotate disabled });
 window.addEventListener('mousemove', e=>{
   if(!dragging) return;
   const dx=e.clientX-lastPos[0], dy=e.clientY-lastPos[1];
@@ -529,7 +593,7 @@ canvas.addEventListener('touchstart', e=>{
 },{passive:false});
 canvas.addEventListener('touchend', e=>{
   e.preventDefault();
-  if(e.touches.length===0){ dragging=false; lastTouchDist=null; autoTimer=setTimeout(()=>{autoRotate=true;},4000); }
+  if(e.touches.length===0){ dragging=false; lastTouchDist=null; // autoRotate disabled }
 },{passive:false});
 canvas.addEventListener('touchmove', e=>{
   e.preventDefault();
@@ -562,7 +626,7 @@ function flyTo(lng,lat,dur=900){
     rotation[0]=start[0]+(end[0]-start[0])*ease;
     rotation[1]=start[1]+(end[1]-start[1])*ease;
     if(t<1) requestAnimationFrame(step);
-    else autoTimer=setTimeout(()=>{autoRotate=true;},5000);
+    // autoRotate disabled
   })();
 }
 
@@ -574,6 +638,7 @@ const sheetContent=document.getElementById('sheet-content');
 function openSheet(key){
   const city=CITIES[key], info=CITY_INFO[key];
   if(!info) return;
+  activeCityKey = key;
 
   // Dates
   const datesHTML=`
@@ -593,7 +658,7 @@ function openSheet(key){
   // Transport
   const transportHTML=(info.transport||[]).map(t=>{
     const pdfHTML=(t.pdf||[]).map(p=>
-      `<a class="pdf-btn" href="${p.url}" target="_blank">↓ ${p.label}</a>`
+      `<a class="pdf-btn" data-type="${t.type}" href="${p.url}" target="_blank">↓ ${p.label}</a>`
     ).join('');
     const paxHTML=(t.passengers||[]).map(p=>`
       <div class="pax-row">
@@ -616,6 +681,19 @@ function openSheet(key){
       </div>
     </div>`;
   }).join('');
+
+  // Places
+  const pinIcon=`<svg xmlns="http://www.w3.org/2000/svg" height="11" viewBox="0 -960 960 960" width="11" fill="currentColor"><path d="M480-480q33 0 56.5-23.5T560-560q0-33-23.5-56.5T480-640q-33 0-56.5 23.5T400-560q0 33 23.5 56.5T480-480Zm0 294q122-112 181-203.5T720-560q0-109-69.5-184.5T480-820q-101 0-170.5 75.5T240-560q0 71 59 162.5T480-186Z"/></svg>`;
+  const guideLink = info.guide ? `<a class="pdf-btn" href="${info.guide}" target="_blank" style="margin-bottom:8px;display:inline-flex">↗ Ver Guía Apple Maps</a>` : '';
+  const placesHTML=(info.places||[]).length>0?`
+    <div class="divider"></div>
+    <div class="sc-section">
+      <div class="sc-label">Lugares recomendados</div>
+      ${guideLink}
+      <div class="places-grid">
+        ${(info.places||[]).map(p=>`<span class="place-tag">${pinIcon}${p.name}</span>`).join('')}
+      </div>
+    </div>`:'';
 
   // Stay
   const stayHTML=info.stayLabel?`
@@ -659,6 +737,8 @@ function openSheet(key){
       <div class="notes-box"><p>${info.notes}</p></div>
     </div>
 
+    ${placesHTML}
+
     <div class="badges">${badges}</div>
   `;
 
@@ -670,7 +750,7 @@ function openSheet(key){
 function closeSheet(){
   sheet.classList.remove('open'); backdrop.classList.remove('visible');
   setTimeout(()=>{ backdrop.style.display='none'; },300);
-  autoTimer=setTimeout(()=>{autoRotate=true;},500);
+  activeCityKey = null;
 }
 
 let sheetStartY=0;
@@ -766,7 +846,7 @@ ROUTES.forEach((r,i)=>{
 // ── Init ──────────────────────────────────────────────────────────────────────
 window.addEventListener('resize', resize);
 resize();
-d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json')
+d3.json('countries-110m.json')
   .then(data=>{ world=data; document.getElementById('loading').style.display='none'; animate(); })
   .catch(()=>{ document.getElementById('loading').style.display='none'; animate(); });
 </script>
