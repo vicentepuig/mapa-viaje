@@ -1,3 +1,8 @@
+Aquí está el contenido completo. Cópialo todo y pégalo en el editor de GitHub:
+
+---
+
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -7,8 +12,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body {
@@ -20,7 +23,6 @@ html, body {
   -webkit-font-smoothing: antialiased;
   touch-action: none;
 }
-canvas { display: block; position: fixed; inset: 0; width: 100%; height: 100%; touch-action: none; }
 
 /* Header */
 #header {
@@ -74,6 +76,9 @@ canvas { display: block; position: fixed; inset: 0; width: 100%; height: 100%; t
 }
 .qa-panel.open { max-height: 300px; }
 .qa-panel-inner { padding: 10px 12px 12px; }
+
+#map-svg { display:block; position:fixed; inset:0; width:100%; height:100%; background:#F1F1F1; z-index:0; }
+#map-svg text { pointer-events:none; }
 
 /* Timeline strip */
 #bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 20; padding-bottom: env(safe-area-inset-bottom, 0px); }
@@ -219,27 +224,11 @@ canvas { display: block; position: fixed; inset: 0; width: 100%; height: 100%; t
 .badge-train  { background: #FF4400; color: #341A02; }
 .badge-stay   { background: #341A02; color: #F1F1F1; }
 
-/* Loading */
-#loading {
-  position: fixed; inset: 0; background: #F1F1F1;
-  display: flex; align-items: center; justify-content: center;
-  z-index: 100; flex-direction: column; gap: 12px;
-}
-#loading p { color: rgba(52,26,2,.4); font-size: .78rem; letter-spacing: .06em; }
-.spinner {
-  width: 24px; height: 24px;
-  border: 0.75px solid rgba(52,26,2,.12);
-  border-top-color: #341A02;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg) } }
+/* Loading */ }
 </style>
 </head>
 <body>
 
-<div id="loading"><div class="spinner"></div><p>Cargando mapa…</p></div>
-<canvas id="globe"></canvas>
 
 <div id="header">
   <div id="header-title">
@@ -260,6 +249,43 @@ canvas { display: block; position: fixed; inset: 0; width: 100%; height: 100%; t
   <div id="timeline-scroll"></div>
 </div>
 
+<svg id="map-svg" viewBox="0 0 390 270" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+  <!-- Land masses -->
+  <polygon points="35,128 98,128 139,146 195,159 195,185 123,252 88,300 35,300 35,238"
+           fill="rgba(52,26,2,.07)" stroke="rgba(52,26,2,.12)" stroke-width="0.5"/>
+  <polygon points="278,71 390,53 390,0 322,0 295,21 284,42 278,71"
+           fill="rgba(52,26,2,.07)" stroke="rgba(52,26,2,.12)" stroke-width="0.5"/>
+  <!-- Reference lines -->
+  <line x1="0" y1="159" x2="390" y2="159" stroke="rgba(52,26,2,.06)" stroke-width="0.5" stroke-dasharray="3,6"/>
+  <line x1="0" y1="97" x2="390" y2="97" stroke="rgba(52,26,2,.04)" stroke-width="0.5" stroke-dasharray="2,8"/>
+  <line x1="313" y1="0" x2="313" y2="270" stroke="rgba(52,26,2,.04)" stroke-width="0.5" stroke-dasharray="2,8"/>
+  <!-- Routes outbound -->
+  <path d="M 67,247 Q 80,193 55,146" stroke="#00AAFF" stroke-width="0.75" fill="none"/>
+  <path d="M 55,146 Q 130,20 321,49" stroke="#00AAFF" stroke-width="0.75" fill="none"/>
+  <path d="M 321,49 Q 316,28 330,20" stroke="#00AAFF" stroke-width="0.75" fill="none"/>
+  <path d="M 330,20 Q 344,14 360,20" stroke="#FF4400" stroke-width="0.75" fill="none" stroke-dasharray="3,3"/>
+  <path d="M 360,20 Q 360,25 353,34" stroke="#FF4400" stroke-width="0.75" fill="none" stroke-dasharray="3,3"/>
+  <path d="M 353,34 Q 340,36 330,38 Q 323,44 321,49" stroke="#FF4400" stroke-width="0.75" fill="none" stroke-dasharray="3,3"/>
+  <!-- Return flight (lighter) -->
+  <path d="M 321,49 Q 130,20 55,146" stroke="#00AAFF" stroke-width="0.5" fill="none" stroke-dasharray="2,5" opacity="0.35"/>
+  <path d="M 55,146 Q 80,193 67,247" stroke="#00AAFF" stroke-width="0.5" fill="none" stroke-dasharray="2,5" opacity="0.35"/>
+  <!-- City dots -->
+  <circle id="dot-santiago"  cx="67"  cy="247" r="4"   fill="#F1F1F1" stroke="#341A02" stroke-width="1"    style="cursor:pointer" onclick="openSheet('santiago')"/>
+  <circle id="dot-bogota"    cx="55"  cy="146" r="4"   fill="#F1F1F1" stroke="#341A02" stroke-width="1"    style="cursor:pointer" onclick="openSheet('bogota')"/>
+  <circle id="dot-barcelona" cx="321" cy="49"  r="4"   fill="#F1F1F1" stroke="#341A02" stroke-width="1"    style="cursor:pointer" onclick="openSheet('barcelona')"/>
+  <circle id="dot-amsterdam" cx="330" cy="20"  r="4"   fill="#F1F1F1" stroke="#341A02" stroke-width="1"    style="cursor:pointer" onclick="openSheet('amsterdam')"/>
+  <circle id="dot-berlin"    cx="360" cy="20"  r="4"   fill="#F1F1F1" stroke="#341A02" stroke-width="1"    style="cursor:pointer" onclick="openSheet('berlin')"/>
+  <circle id="dot-innsbruck" cx="353" cy="34"  r="3.5" fill="#F1F1F1" stroke="#341A02" stroke-width="0.75" style="cursor:pointer" onclick="openSheet('innsbruck')"/>
+  <circle id="dot-lyon"      cx="330" cy="38"  r="3"   fill="#F1F1F1" stroke="#341A02" stroke-width="0.75" style="cursor:pointer" onclick="openSheet('lyon')"/>
+  <!-- Labels -->
+  <text x="73"  y="252" font-size="7.5" font-family="Inter,system-ui,sans-serif" fill="#341A02" font-weight="500">Santiago</text>
+  <text x="61"  y="141" font-size="7.5" font-family="Inter,system-ui,sans-serif" fill="#341A02" font-weight="500">Bogotá</text>
+  <text x="293" y="60"  font-size="7"   font-family="Inter,system-ui,sans-serif" fill="#341A02" font-weight="500">Barcelona</text>
+  <text x="303" y="15"  font-size="6.5" font-family="Inter,system-ui,sans-serif" fill="#341A02" font-weight="500">Ámsterdam</text>
+  <text x="345" y="15"  font-size="6.5" font-family="Inter,system-ui,sans-serif" fill="#341A02" font-weight="500">Berlín</text>
+  <text x="337" y="44"  font-size="6"   font-family="Inter,system-ui,sans-serif" fill="#341A02" font-weight="500">Innsbruck</text>
+  <text x="308" y="34"  font-size="6"   font-family="Inter,system-ui,sans-serif" fill="#341A02" font-weight="500">Lyon</text>
+</svg>
 <div id="sheet-backdrop" onclick="closeSheet()"></div>
 <div id="sheet">
   <div id="sheet-handle-area" onclick="closeSheet()"><div id="sheet-handle"></div></div>
@@ -336,7 +362,6 @@ const CITY_INFO = {
     arrival:   { date:'21 mayo', time:'~8:45 AM' },
     departure: { date:'26 mayo', time:'6:20 AM' },
     stay: 'Casa de Beto & Pablo', stayLabel: 'Casa de amigo',
-    guide: 'https://maps.apple.com/place?q=ncMy08f8Jepn4BWvubT2bC',
     places: [
       { name:'Sagrada Família',       lat:41.4036, lng: 2.1744 },
       { name:'Park Güell',            lat:41.4145, lng: 2.1527 },
@@ -374,7 +399,6 @@ const CITY_INFO = {
     arrival:   { date:'26 mayo', time:'8:35 AM' },
     departure: { date:'29 mayo', time:'Por definir' },
     stay: 'Quentin Museum Square Hotel\nRoemer Visscherstraat 30, Oud-West\n1054 EZ Ámsterdam\n+31 20 689 2323', stayLabel: 'Hotel',
-    guide: 'https://maps.apple.com/place?q=RrFwVb84uy69sFHXwvfqqD',
     places: [
       { name:'Rijksmuseum',           lat:52.3600, lng: 4.8852 },
       { name:'Van Gogh Museum',       lat:52.3584, lng: 4.8811 },
@@ -394,7 +418,6 @@ const CITY_INFO = {
     arrival:   { date:'29 mayo', time:'Por definir' },
     departure: { date:'6 junio', time:'Por definir' },
     stay: 'Casa de Benja', stayLabel: 'Casa de amigo',
-    guide: 'https://maps.apple.com/place?q=X5PkkyP7s102Brc9bn.hDC',
     places: [
       { name:'Puerta de Brandenburgo', lat:52.5163, lng:13.3777 },
       { name:'East Side Gallery',      lat:52.5051, lng:13.4398 },
@@ -479,155 +502,11 @@ const ROUTES = [
   { from:'bogota',    to:'santiago',  type:'flight', label:'AV 97',   date:'13 junio', time:'9:35 PM → 4:45 AM +1' },
 ];
 
-// ── Globe ─────────────────────────────────────────────────────────────────────
-const canvas = document.getElementById('globe');
-const ctx    = canvas.getContext('2d');
-let W, H, projection, path, world = null;
-let rotation = [-10,-18,0], dragging = false, lastPos = null, lastTouchDist = null;
-let zoomK = 1, autoRotate = false, autoTimer = null, activeCityKey = null;
-
-function getScale(){ return Math.min(W,H) * 0.44 * zoomK; }
-function resize(){ W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; buildProjection(); }
-function buildProjection(){
-  projection = d3.geoOrthographic().scale(getScale()).translate([W/2, H/2-30]).rotate(rotation).clipAngle(90);
-  path = d3.geoPath(projection, ctx);
-}
-
-function draw(){
-  ctx.clearRect(0,0,W,H);
-  ctx.save();
-  ctx.beginPath(); path({type:'Sphere'}); ctx.clip();
-  if(world){
-    topojson.feature(world, world.objects.countries).features.forEach(f=>{
-      ctx.beginPath(); path(f); ctx.fillStyle='#341A02'; ctx.fill();
-    });
-    ctx.beginPath();
-    path(topojson.mesh(world, world.objects.countries, (a,b)=>a!==b));
-    ctx.strokeStyle='rgba(241,241,241,.2)'; ctx.lineWidth=0.4; ctx.stroke();
-  }
-  ctx.restore();
-  ctx.beginPath(); path({type:'Sphere'}); ctx.strokeStyle='#341A02'; ctx.lineWidth=0.75; ctx.stroke();
-  ROUTES.forEach(drawArc);
-  if(activeCityKey) drawPlaces(activeCityKey);
-  Object.entries(CITIES).forEach(([key,c])=>drawCity(key,c));
-}
-
-function drawArc(route){
-  const from=CITIES[route.from], to=CITIES[route.to];
-  const color=route.type==='flight'?'#00AAFF':'#FF4400';
-  const interp=d3.geoInterpolate([from.lng,from.lat],[to.lng,to.lat]);
-  ctx.save(); ctx.beginPath();
-  let first=true;
-  for(let i=0;i<=100;i++){
-    const [lng,lat]=interp(i/100);
-    if(d3.geoDistance([lng,lat],[-rotation[0],-rotation[1]])>Math.PI/2){first=true;continue;}
-    const [x,y]=projection([lng,lat]);
-    first?ctx.moveTo(x,y):ctx.lineTo(x,y); first=false;
-  }
-  ctx.strokeStyle=color; ctx.lineWidth=0.75;
-  if(route.type==='train') ctx.setLineDash([3,3]);
-  ctx.stroke(); ctx.setLineDash([]); ctx.restore();
-}
-
-function drawPlaces(cityKey){
-  const info = CITY_INFO[cityKey];
-  if(!info || !info.places) return;
-  info.places.forEach(p=>{
-    if(d3.geoDistance([p.lng,p.lat],[-rotation[0],-rotation[1]])>Math.PI/2) return;
-    const [x,y]=projection([p.lng,p.lat]);
-    ctx.beginPath(); ctx.arc(x,y,2.5,0,2*Math.PI);
-    ctx.fillStyle='#F1F1F1'; ctx.strokeStyle='rgba(52,26,2,.5)'; ctx.lineWidth=0.75;
-    ctx.fill(); ctx.stroke();
-  });
-}
-
-function drawCity(key, city){
-  if(d3.geoDistance([city.lng,city.lat],[-rotation[0],-rotation[1]])>Math.PI/2) return;
-  const [x,y]=projection([city.lng,city.lat]);
-
-  // Dot
-  ctx.beginPath(); ctx.arc(x,y,4,0,2*Math.PI);
-  ctx.fillStyle='#F1F1F1'; ctx.strokeStyle='#341A02'; ctx.lineWidth=1;
-  ctx.fill(); ctx.stroke();
-
-  // Label tag
-  ctx.font = '500 10.5px Inter, system-ui, sans-serif';
-  const tw = ctx.measureText(city.name).width;
-  const tx = x + 9, ty = y - 5;
-  const pad = 3;
-  // tag background
-  ctx.fillStyle = '#F1F1F1';
-  ctx.fillRect(tx - pad, ty - 10, tw + pad*2, 14);
-  // tag border
-  ctx.strokeStyle = 'rgba(52,26,2,.25)';
-  ctx.lineWidth = 0.5;
-  ctx.strokeRect(tx - pad, ty - 10, tw + pad*2, 14);
-  // label text
-  ctx.fillStyle = '#341A02';
-  ctx.fillText(city.name, tx, ty + 1);
-}
-
-function animate(){
-  if(autoRotate) rotation[0]+=0.1;
-  buildProjection(); draw();
-  requestAnimationFrame(animate);
-}
-
-// ── Interaction ───────────────────────────────────────────────────────────────
-function pauseAuto(resume=4000){ autoRotate=false; clearTimeout(autoTimer); }
-
-canvas.addEventListener('mousedown', e=>{ dragging=true; lastPos=[e.clientX,e.clientY]; pauseAuto(0); });
-window.addEventListener('mouseup',   ()=>{ dragging=false; // autoRotate disabled });
-window.addEventListener('mousemove', e=>{
-  if(!dragging) return;
-  const dx=e.clientX-lastPos[0], dy=e.clientY-lastPos[1];
-  rotation[0]+=dx*.3; rotation[1]=Math.max(-80,Math.min(80,rotation[1]-dy*.3));
-  lastPos=[e.clientX,e.clientY];
-});
-canvas.addEventListener('wheel', e=>{ e.preventDefault(); zoomK*=e.deltaY<0?1.1:0.91; zoomK=Math.max(.5,Math.min(4,zoomK)); },{passive:false});
-
-canvas.addEventListener('touchstart', e=>{
-  e.preventDefault();
-  if(e.touches.length===1){ dragging=true; lastPos=[e.touches[0].clientX,e.touches[0].clientY]; pauseAuto(0); }
-  else if(e.touches.length===2) lastTouchDist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
-},{passive:false});
-canvas.addEventListener('touchend', e=>{
-  e.preventDefault();
-  if(e.touches.length===0){ dragging=false; lastTouchDist=null; // autoRotate disabled }
-},{passive:false});
-canvas.addEventListener('touchmove', e=>{
-  e.preventDefault();
-  if(e.touches.length===1&&dragging){
-    const dx=e.touches[0].clientX-lastPos[0], dy=e.touches[0].clientY-lastPos[1];
-    rotation[0]+=dx*.3; rotation[1]=Math.max(-80,Math.min(80,rotation[1]-dy*.3));
-    lastPos=[e.touches[0].clientX,e.touches[0].clientY];
-  } else if(e.touches.length===2&&lastTouchDist!=null){
-    const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
-    zoomK*=d/lastTouchDist; zoomK=Math.max(.5,Math.min(4,zoomK)); lastTouchDist=d;
-  }
-},{passive:false});
-
-canvas.addEventListener('click', e=>{
-  const rect=canvas.getBoundingClientRect();
-  const mx=e.clientX-rect.left, my=e.clientY-rect.top;
-  for(const [key,city] of Object.entries(CITIES)){
-    if(d3.geoDistance([city.lng,city.lat],[-rotation[0],-rotation[1]])>Math.PI/2) continue;
-    const [cx,cy]=projection([city.lng,city.lat]);
-    if(Math.hypot(mx-cx,my-cy)<18){ openSheet(key); return; }
-  }
-});
-
-function flyTo(lng,lat,dur=900){
-  pauseAuto(0);
-  const start=[...rotation],end=[-lng,-lat,0],t0=Date.now();
-  (function step(){
-    const t=Math.min(1,(Date.now()-t0)/dur);
-    const ease=t<.5?2*t*t:-1+(4-2*t)*t;
-    rotation[0]=start[0]+(end[0]-start[0])*ease;
-    rotation[1]=start[1]+(end[1]-start[1])*ease;
-    if(t<1) requestAnimationFrame(step);
-    // autoRotate disabled
-  })();
+// ── Map highlight ─────────────────────────────────────────────────────────────
+function flyTo(lng, lat){
+  const key = Object.keys(CITIES).find(k=>CITIES[k].lng===lng&&CITIES[k].lat===lat);
+  document.querySelectorAll('[id^="dot-"]').forEach(d=>d.setAttribute('fill','#F1F1F1'));
+  if(key){ const dot=document.getElementById('dot-'+key); if(dot) dot.setAttribute('fill','#341A02'); }
 }
 
 // ── Sheet ─────────────────────────────────────────────────────────────────────
@@ -638,7 +517,6 @@ const sheetContent=document.getElementById('sheet-content');
 function openSheet(key){
   const city=CITIES[key], info=CITY_INFO[key];
   if(!info) return;
-  activeCityKey = key;
 
   // Dates
   const datesHTML=`
@@ -684,12 +562,10 @@ function openSheet(key){
 
   // Places
   const pinIcon=`<svg xmlns="http://www.w3.org/2000/svg" height="11" viewBox="0 -960 960 960" width="11" fill="currentColor"><path d="M480-480q33 0 56.5-23.5T560-560q0-33-23.5-56.5T480-640q-33 0-56.5 23.5T400-560q0 33 23.5 56.5T480-480Zm0 294q122-112 181-203.5T720-560q0-109-69.5-184.5T480-820q-101 0-170.5 75.5T240-560q0 71 59 162.5T480-186Z"/></svg>`;
-  const guideLink = info.guide ? `<a class="pdf-btn" href="${info.guide}" target="_blank" style="margin-bottom:8px;display:inline-flex">↗ Ver Guía Apple Maps</a>` : '';
   const placesHTML=(info.places||[]).length>0?`
     <div class="divider"></div>
     <div class="sc-section">
       <div class="sc-label">Lugares recomendados</div>
-      ${guideLink}
       <div class="places-grid">
         ${(info.places||[]).map(p=>`<span class="place-tag">${pinIcon}${p.name}</span>`).join('')}
       </div>
@@ -750,7 +626,7 @@ function openSheet(key){
 function closeSheet(){
   sheet.classList.remove('open'); backdrop.classList.remove('visible');
   setTimeout(()=>{ backdrop.style.display='none'; },300);
-  activeCityKey = null;
+  document.querySelectorAll('[id^="dot-"]').forEach(d=>d.setAttribute('fill','#F1F1F1'));
 }
 
 let sheetStartY=0;
@@ -789,7 +665,6 @@ const QUICK_ITEMS = [
         </div>`;
     },
   },
-  // Agrega más items aquí cuando sea necesario
 ];
 
 const qaContainer = document.getElementById('quick-access');
@@ -807,10 +682,8 @@ QUICK_ITEMS.forEach(item => {
 
   tag.addEventListener('click', () => {
     const isOpen = tag.classList.contains('open');
-    // Cierra todos
     document.querySelectorAll('.qa-tag').forEach(t => t.classList.remove('open'));
     document.querySelectorAll('.qa-panel').forEach(p => p.classList.remove('open'));
-    // Abre este si estaba cerrado
     if (!isOpen) {
       tag.classList.add('open');
       panel.classList.add('open');
@@ -844,11 +717,7 @@ ROUTES.forEach((r,i)=>{
 });
 
 // ── Init ──────────────────────────────────────────────────────────────────────
-window.addEventListener('resize', resize);
-resize();
-d3.json('countries-110m.json')
-  .then(data=>{ world=data; document.getElementById('loading').style.display='none'; animate(); })
-  .catch(()=>{ document.getElementById('loading').style.display='none'; animate(); });
 </script>
 </body>
 </html>
+```
