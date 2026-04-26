@@ -393,9 +393,27 @@ const CITY_INFO = {
 };
 
 const INSURANCE = {
-  nombre: 'Seguro de Viaje',
-  cobertura: '20 mayo – 14 junio 2026 · Dos pasajeros',
-  pdf: null, // reemplazar con 'seguro-viaje.pdf' cuando esté disponible
+  nombre: 'Certificado de Viaje — Visa Signature',
+  cobertura: '20 mayo – 13 junio 2026 · Cobertura Schengen €30,000 · Emergencia USD 150,000',
+  emisor: 'Indemnity Insurance Co. of North America (AXA Assistance USA)',
+  emergencia_local: '+1 (303) 967-1098',
+  emergencia_usa: '+1 (800) 396 9665',
+  pasajeros: [
+    {
+      nombre: 'Vicente Javier Puig Hortal',
+      pasaporte: 'F60982264',
+      nacimiento: '04/07/1998',
+      certificado: '16011-0001-69-269462776 / CER-6903431',
+      pdf: 'seguro-vicente.pdf',
+    },
+    {
+      nombre: 'Ignacio Andrés Rodríguez Sepúlveda',
+      pasaporte: 'F49536242',
+      nacimiento: '11/08/1995',
+      certificado: '16011-0001-69-269462795 / CER-6903443',
+      pdf: 'seguro-ignacio.pdf',
+    },
+  ],
 };
 
 const ROUTES = [
@@ -666,16 +684,28 @@ const QUICK_ITEMS = [
     label: 'Seguro de Viaje',
     icon: `<svg xmlns="http://www.w3.org/2000/svg" height="12" viewBox="0 -960 960 960" width="12" fill="#341A02"><path d="M480-80q-139-35-229.5-159.5T160-516v-244l320-120 320 120v244q0 152-90.5 276.5T480-80Z"/></svg>`,
     render: () => {
-      const btn = INSURANCE.pdf
-        ? `<a class="pdf-btn" href="${INSURANCE.pdf}" target="_blank">↓ Ver PDF</a>`
-        : `<span class="pdf-btn-pending">↓ PDF pendiente</span>`;
-      return `
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-          <div>
-            <div style="font-size:.78rem;font-weight:600;color:#341A02">${INSURANCE.nombre}</div>
-            <div style="font-size:.68rem;color:rgba(52,26,2,.5);margin-top:2px">${INSURANCE.cobertura}</div>
+      const paxRows = INSURANCE.pasajeros.map(p => `
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:0.75px solid rgba(52,26,2,.15)">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:.75rem;font-weight:600;color:#341A02;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.nombre}</div>
+            <div style="font-size:.65rem;color:rgba(52,26,2,.5);margin-top:2px">Pasaporte: ${p.pasaporte} · Nac: ${p.nacimiento}</div>
+            <div style="font-size:.63rem;color:rgba(52,26,2,.45);margin-top:1px">Cert: ${p.certificado}</div>
           </div>
-          ${btn}
+          <a class="pdf-btn" href="${p.pdf}" target="_blank" style="flex-shrink:0">↓ PDF</a>
+        </div>`).join('');
+
+      return `
+        <div style="border-bottom:0.75px solid rgba(52,26,2,.15);padding-bottom:8px;margin-bottom:4px">
+          <div style="font-size:.72rem;font-weight:600;color:#341A02">${INSURANCE.nombre}</div>
+          <div style="font-size:.65rem;color:rgba(52,26,2,.5);margin-top:2px">${INSURANCE.cobertura}</div>
+        </div>
+        ${paxRows}
+        <div style="padding-top:8px;display:flex;gap:12px;align-items:center">
+          <div style="font-size:.65rem;color:rgba(52,26,2,.5)">
+            <div style="font-weight:600;color:rgba(52,26,2,.7);margin-bottom:1px">Emergencias</div>
+            <div>Fuera EEUU: ${INSURANCE.emergencia_local}</div>
+            <div>EEUU: ${INSURANCE.emergencia_usa}</div>
+          </div>
         </div>`;
     },
   },
