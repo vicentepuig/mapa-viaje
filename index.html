@@ -18,7 +18,7 @@
   --tertiary:  #AEAEB2;
   --sep:       rgba(60,60,67,.12);
   --flight:    #0A84FF;
-  --train:     #FF4400;
+  --train:     #34C759;
   --pass-hdr:  #1C1C1E;
   --r:         16px;
   --r-sm:      10px;
@@ -60,7 +60,7 @@ body {
 }
 
 /* ── Itinerary timeline ─────────────────────────────────────────────────────── */
-.itin-list { display: flex; flex-direction: column; }
+.itin-list { display: flex; flex-direction: column; gap: 4px; }
 
 /* City card */
 .city-card {
@@ -74,7 +74,7 @@ body {
 }
 .city-card:active { opacity: .7; }
 .city-card-head {
-  padding: 14px 16px 14px;
+  padding: 16px 16px 18px;
   display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
 }
 .cc-left  { flex: 1; min-width: 0; }
@@ -82,25 +82,19 @@ body {
 .cc-name    { font-size: 1.1rem; font-weight: 700; letter-spacing: -.02em; line-height: 1; color: var(--primary); }
 .cc-country { font-size: .62rem; font-weight: 500; color: var(--secondary); margin-top: 3px; }
 .cc-stay    { font-size: .7rem; color: var(--secondary); margin-top: 8px; line-height: 1.3; }
+.cc-stay svg { vertical-align: middle; margin-top: -1px; }
 .cc-date    { font-size: .72rem; font-weight: 600; color: var(--primary); line-height: 1.2; }
 .cc-dur     { font-size: .6rem; color: var(--tertiary); margin-top: 3px; }
 .cc-badges  { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 11px; }
 
 /* Transport connector between cards */
 .tc-block {
-  display: flex; align-items: stretch;
-  padding: 0 20px;
+  display: flex; justify-content: center; align-items: center;
+  padding: 10px 20px;
 }
-.tc-spine {
-  width: 1px;
-  background: var(--sep);
-  margin: 0 7px 0 11px; flex-shrink: 0;
-}
-.tc-content { padding: 6px 0 6px 10px; flex: 1; }
-.tc-route  { font-size: .7rem; font-weight: 600; display: flex; align-items: center; gap: 5px; }
-.tc-detail { font-size: .62rem; color: var(--secondary); margin-top: 2px; }
-.tc-line-flight { color: var(--flight); }
-.tc-line-train  { color: var(--train); }
+.tc-route  { font-size: .68rem; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+.tc-line-flight { color: var(--primary); }
+.tc-line-train  { color: #AC7F5E; }
 
 /* ── Badges ─────────────────────────────────────────────────────────────────── */
 .badge {
@@ -108,33 +102,74 @@ body {
   padding: 3px 9px; font-size: .6rem; font-weight: 600;
   border-radius: 100px;
 }
-.badge-flight  { background: rgba(10,132,255,.12); color: var(--flight); }
-.badge-train   { background: rgba(255,68,0,.1);    color: var(--train);  }
-.badge-stay    { background: rgba(0,0,0,.07);       color: var(--primary); }
-.badge-transit { background: rgba(0,0,0,.05);       color: var(--secondary); }
+.badge-flight  { background: rgba(0,0,0,.07);          color: var(--primary);  }
+.badge-train   { background: rgba(172,127,94,.13);    color: #AC7F5E;         }
+.badge-stay    { background: rgba(0,0,0,.07);          color: var(--primary);  }
+.badge-transit { background: rgba(0,0,0,.05);          color: var(--secondary); }
 
-/* ── Document passes — wallet stack ─────────────────────────────────────────── */
-.doc-passes { position: relative; overflow: hidden; /* height set by JS */ }
+/* ── Document passes — flip cards ───────────────────────────────────────────── */
+.doc-passes { display: flex; flex-direction: column; gap: 14px; }
 
+/* Flip wrapper */
+.pass-wrap {
+  perspective: 1400px;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+.pass-inner {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform .58s cubic-bezier(.4,0,.2,1);
+  border-radius: var(--r);
+}
+.pass-inner.flipped { transform: rotateY(180deg); }
+
+/* Both faces share base styles */
+.pass-face {
+  border-radius: var(--r);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Front face — dark card, sized by JS to match back height */
+.pass-face-front {
+  position: absolute; inset: 0;
+  background: var(--pass-hdr);
+  display: flex; flex-direction: column; justify-content: flex-start;
+  padding: 22px 18px 20px;
+}
+.pass-face-front .pass-hint {
+  position: absolute; top: 14px; right: 16px;
+  font-size: .58rem; font-weight: 600; color: rgba(255,255,255,.3);
+  letter-spacing: .04em;
+}
+/* Large centered icon in remaining space */
+.pass-front-icon {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  margin-top: 4px; opacity: .13;
+}
+
+/* Back face — white, natural height (sets container height) */
+.pass-face-back {
+  transform: rotateY(180deg);
+  background: var(--card);
+  cursor: default;
+}
+/* Tap back to close */
+.pass-back-hint {
+  text-align: center; font-size: .6rem; font-weight: 600;
+  color: var(--tertiary); padding: 0 0 14px; letter-spacing: .03em;
+}
+
+/* Shared pass content styles (used on both faces) */
 .pass {
-  position: absolute; left: 0; right: 0;
   background: var(--card);
   border-radius: var(--r);
   box-shadow: var(--shadow);
   overflow: hidden;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  transition: top .42s cubic-bezier(.32,.72,0,1),
-              box-shadow .2s;
-  will-change: top;
 }
-.pass.pass-front {
-  cursor: default;
-  box-shadow: 0 6px 24px rgba(0,0,0,.13), 0 0 0 0.5px rgba(0,0,0,.04);
-}
-/* Disable links/buttons on non-front cards so tap = bring-to-front */
-.pass:not(.pass-front) a,
-.pass:not(.pass-front) button { pointer-events: none; }
 
 /* Pass header */
 .pass-hdr {
@@ -267,8 +302,8 @@ body {
   transition: background .12s;
 }
 .pdf-btn:active { background: rgba(10,132,255,.15); }
-.pdf-btn[data-type="train"]         { color: var(--train); background: rgba(255,68,0,.08); }
-.pdf-btn[data-type="train"]:active  { background: rgba(255,68,0,.15); }
+.pdf-btn[data-type="train"]         { color: var(--train); background: rgba(52,199,89,.08); }
+.pdf-btn[data-type="train"]:active  { background: rgba(52,199,89,.15); }
 </style>
 </head>
 <body>
@@ -308,9 +343,9 @@ body {
 const IC = {
   flight: `<svg xmlns="http://www.w3.org/2000/svg" height="13" viewBox="0 -960 960 960" width="13" fill="currentColor"><path d="M308.46-120v-61.54l113.85-80.15v-173.23L120-313.08v-78.46l302.31-213.23v-177.54q0-23.77 16.96-40.73Q456.23-840 480-840q23.77 0 40.73 16.96 16.96 16.96 16.96 40.73v177.54L840-391.54v78.46L537.69-434.92v173.23l113.08 80.15V-120L480-172.31 308.46-120Z"/></svg>`,
   train:  `<svg xmlns="http://www.w3.org/2000/svg" height="13" viewBox="0 -960 960 960" width="13" fill="currentColor"><path d="M180-347.69V-720q0-46.08 25-73.73 25-27.65 66.73-42.23 41.73-14.58 95.96-19.31Q421.92-860 480-860q62.15 0 116.81 4.73 54.65 4.73 95.46 19.31 40.81 14.58 64.27 42.23Q780-766.08 780-720v372.31q0 53.61-37.04 90.65Q705.92-220 652.31-220l60 60v20h-56.92l-80-80H384.61l-80 80h-56.92v-20l60-60q-53.61 0-90.65-37.04Q180-294.08 180-347.69ZM480-800q-111.77 0-163.08 14.04-51.31 14.04-65.84 36.73h460.31q-12.7-23.92-64.31-37.35Q595.46-800 480-800ZM240-540h210v-149.23H240V-540Zm412.31 60H240h480-67.69ZM510-540h210v-149.23H510V-540ZM377.42-342.58q14.89-14.88 14.89-37.42t-14.89-37.42q-14.88-14.89-37.42-14.89t-37.42 14.89q-14.89 14.88-14.89 37.42t14.89 37.42q14.88 14.89 37.42 14.89t37.42-14.89Zm280 0q14.89-14.88 14.89-37.42t-14.89-37.42q-14.88-14.89-37.42-14.89t-37.42 14.89q-14.89 14.88-14.89 37.42t14.89 37.42q14.88 14.89 37.42 14.89t37.42-14.89ZM307.69-280h344.62q28.69 0 48.19-19.5Q720-319 720-347.69V-480H240v132.31q0 28.69 19.5 48.19Q279-280 307.69-280ZM480-749.23H711.39 251.08 480Z"/></svg>`,
-  stay:   `<svg xmlns="http://www.w3.org/2000/svg" height="11" viewBox="0 -960 960 960" width="11" fill="#F1F1F1"><path d="M160-200v-360q0-19 8.5-36t23.5-28l280-210q21-16 48-16t48 16l280 210q15 11 23.5 28t8.5 36v360q0 33-23.5 56.5T800-120H600v-240H360v240H160q-33 0-56.5-23.5T80-200Z"/></svg>`,
+  stay:   `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="currentColor" style="vertical-align:middle;margin-top:-1px"><path d="M6 1 L1 5.5 L1 11 L4.5 11 L4.5 7.5 L7.5 7.5 L7.5 11 L11 11 L11 5.5 Z"/></svg>`,
   chevron:`<svg xmlns="http://www.w3.org/2000/svg" height="12" viewBox="0 -960 960 960" width="12" fill="rgba(52,26,2,.3)"><path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"/></svg>`,
-  shield: `<svg xmlns="http://www.w3.org/2000/svg" height="13" viewBox="0 -960 960 960" width="13" fill="#F1F1F1"><path d="M480-80q-139-35-229.5-159.5T160-516v-244l320-120 320 120v244q0 152-90.5 276.5T480-80Z"/></svg>`,
+  shield: `<svg xmlns="http://www.w3.org/2000/svg" height="13" viewBox="0 -960 960 960" width="13" fill="currentColor"><path d="M440-120v-240L200-226l-80-138 240-138-240-138 80-138 240 134v-236h160v236l240-134 80 138-240 138 240 138-80 138-240-134v240H440Z"/></svg>`,
 };
 
 // ── Data ──────────────────────────────────────────────────────────────────────
@@ -334,17 +369,17 @@ const STOPS = [
     stay: null,
     stayLabel: null,
     arrival:   { date:'14 junio', time:'~4:45 AM' },
-    departure: { date:'20 mayo',  time:'6:10 AM' },
+    departure: { date:'20 mayo',  time:'6:40 AM' },
     arrivalBy: null,
     badges: [],
     transport: [
-      { type:'flight', name:'AV 98 · Ida', detail:'SCL → BOG\n20 mayo · 06:10 → 11:10 · Terminal 2',
+      { type:'flight', name:'AV 98 · Ida', detail:'SCL → BOG\n20 mayo · 06:40 → 11:30 · Operado por WAMOS',
         pdf:[{label:'Pasaje Vicente',url:'pasaje-vicente-avianca.pdf'},{label:'Pasaje Ignacio',url:'pasaje-ignacio-avianca.pdf'}],
         passengers:[
           { name:'Vicente Javier Puig Hortal',         reserva:'CAIBH6', billete:'202 2488482706', ff:'005344916930', maleta:'1 bolso 23 kg' },
           { name:'Ignacio Andrés Rodríguez Sepúlveda', reserva:'CAIBH6', billete:'202 2488482707', ff:null,           maleta:'No incluida' },
         ]},
-      { type:'flight', name:'AV 97 · Regreso', detail:'BOG → SCL\n13 junio · 21:40 → 04:15 +1',
+      { type:'flight', name:'AV 97 · Regreso', detail:'BOG → SCL\n13 junio · 21:35 → 04:45 +1 · Operado por WAMOS',
         pdf:[{label:'Pasaje Vicente',url:'pasaje-vicente-avianca.pdf'},{label:'Pasaje Ignacio',url:'pasaje-ignacio-avianca.pdf'}],
         passengers:[
           { name:'Vicente Javier Puig Hortal',         reserva:'CAIBH6', billete:'202 2488482706', ff:'005344916930', maleta:'1 bolso 23 kg' },
@@ -359,12 +394,12 @@ const STOPS = [
     dur: 'Escala · 4h',
     stay: 'Aeropuerto El Dorado · Terminal 1',
     stayLabel: null,
-    arrival:   { date:'20 mayo', time:'11:10 AM' },
-    departure: { date:'20 mayo', time:'16:00 PM' },
+    arrival:   { date:'20 mayo', time:'11:30 AM' },
+    departure: { date:'20 mayo', time:'15:35 PM' },
     arrivalBy: 'flight',
     badges: ['transit'],
     transport: [
-      { type:'flight', name:'AV 18 · Salida a Barcelona', detail:'BOG → BCN\n20 mayo · 16:00 → 09:00 +1',
+      { type:'flight', name:'AV 18 · Salida a Barcelona', detail:'BOG → BCN\n20 mayo · 15:35 → 08:45 +1',
         pdf:[{label:'Pasaje Vicente',url:'pasaje-vicente-avianca.pdf'},{label:'Pasaje Ignacio',url:'pasaje-ignacio-avianca.pdf'}],
         passengers:[
           { name:'Vicente Javier Puig Hortal',         reserva:'CAIBH6', billete:'202 2488482706', ff:'005344916930', maleta:'1 bolso 23 kg' },
@@ -379,7 +414,7 @@ const STOPS = [
     dur: '5 noches',
     stay: 'Casa de Beto & Pablo',
     stayLabel: 'Casa de amigo',
-    arrival:   { date:'21 mayo', time:'~9:00 AM' },
+    arrival:   { date:'21 mayo', time:'~8:45 AM' },
     departure: { date:'26 mayo', time:'6:20 AM' },
     arrivalBy: 'flight',
     badges: ['stay', 'flight'],
@@ -399,13 +434,18 @@ const STOPS = [
     stay: 'Quentin Museum Square Hotel\nRoemer Visscherstraat 30\n1054 EZ Ámsterdam',
     stayLabel: 'Hotel',
     arrival:   { date:'26 mayo', time:'8:35 AM' },
-    departure: { date:'29 mayo', time:'Por definir' },
+    departure: { date:'29 mayo', time:'2:00 PM' },
     arrivalBy: 'flight',
     badges: ['stay', 'train'],
     transport: [
-      { type:'train', name:'Tren · Salida a Berlín', detail:'Amsterdam → Berlín\n29 mayo · horario por definir' },
+      { type:'train', name:'ICE 149 · Salida a Berlín', detail:'Amsterdam Centraal → Berlin Hbf\n29 mayo · 14:00 → 19:51',
+        pdf:[{label:'ICE Amsterdam–Berlín', url:'tren-amsterdam-berlin.pdf'}],
+        passengers:[
+          { name:'Vicente Javier Puig Hortal',         reserva:'VTQLRGV', billete:'ICE 149', ff:null, maleta:'—' },
+          { name:'Ignacio Andrés Rodríguez Sepúlveda', reserva:'VTQLRGV', billete:'ICE 149', ff:null, maleta:'—' },
+        ]},
     ],
-    notes: '3 noches. Check-in 15:00–23:00, check-out 11:00. CL$ 447.718.',
+    notes: '3 noches. Check-in 15:00–23:00, check-out 11:00. CL$ 447.718. Sale el 29 mayo en ICE 149 a las 14:00.',
   },
   {
     key: 'berlin',
@@ -413,14 +453,22 @@ const STOPS = [
     dur: '8 noches',
     stay: 'Casa de Benja',
     stayLabel: 'Casa de amigo',
-    arrival:   { date:'29 mayo', time:'Por definir' },
-    departure: { date:'6 junio', time:'Por definir' },
+    arrival:   { date:'29 mayo', time:'7:51 PM' },
+    departure: { date:'6 junio', time:'10:42 AM' },
     arrivalBy: 'train',
     badges: ['stay', 'train'],
     transport: [
-      { type:'train', name:'Tren · Salida a Innsbruck', detail:'Berlín → Innsbruck\n6 junio · horario por definir' },
+      { type:'train', name:'ICE 1007 + RJ 89 · Berlín → Innsbruck', detail:'Berlín Südkreuz → München Hbf → Innsbruck Hbf\n6 junio · 10:42 → 17:18',
+        pdf:[
+          {label:'ICE Berlín–Munich',       url:'tren-berlin-munich.pdf'},
+          {label:'Railjet Munich–Innsbruck', url:'tren-munich-innsbruck.pdf'},
+        ],
+        passengers:[
+          { name:'Vicente Javier Puig Hortal',         reserva:'ZSQ2821U01 / QSXVJSS', billete:'ICE 1007 + RJ 89', ff:null, maleta:'—' },
+          { name:'Ignacio Andrés Rodríguez Sepúlveda', reserva:'ZSQ2821U01 / QSXVJSS', billete:'ICE 1007 + RJ 89', ff:null, maleta:'—' },
+        ]},
     ],
-    notes: '8 noches. Horarios de tren pendientes.',
+    notes: '8 noches. Salida el 6 junio: ICE 1007 (10:42–14:45) + Railjet 89 (15:32–17:18) vía München.',
   },
   {
     key: 'innsbruck',
@@ -428,42 +476,42 @@ const STOPS = [
     dur: '4 noches',
     stay: 'Casa de Simón',
     stayLabel: 'Casa de amigo',
-    arrival:   { date:'6 junio',  time:'Por definir' },
+    arrival:   { date:'6 junio',  time:'5:18 PM' },
     departure: { date:'10 junio', time:'Por definir' },
     arrivalBy: 'train',
     badges: ['stay', 'train'],
     transport: [
-      { type:'train', name:'Tren · Salida a Lyon → Barcelona', detail:'Innsbruck → Lyon → Barcelona\n10 junio · horario por definir' },
+      { type:'train', name:'Tren · Salida a Lyon', detail:'Innsbruck → Lyon\n10 junio · horario por definir' },
     ],
-    notes: '4 noches. Regreso a Barcelona vía Lyon el 10 junio.',
+    notes: '4 noches. Llega en Railjet 89 a las 17:18. Sale el 10 junio hacia Lyon (1 noche), luego Barcelona el 11.',
   },
   {
     key: 'lyon',
-    dateMain: '10 junio',
-    dur: 'Parada',
-    stay: null,
-    stayLabel: null,
+    dateMain: '10–11 junio',
+    dur: '1 noche',
+    stay: 'Por definir',
+    stayLabel: 'Por definir',
     arrival:   { date:'10 junio', time:'Por definir' },
-    departure: { date:'10 junio', time:'Por definir' },
+    departure: { date:'11 junio', time:'Por definir' },
     arrivalBy: 'train',
-    badges: ['transit'],
+    badges: ['stay', 'train'],
     transport: [
-      { type:'train', name:'Tren · Continúa a Barcelona', detail:'Lyon → Barcelona\n10 junio · horario por definir' },
+      { type:'train', name:'Tren · Salida a Barcelona', detail:'Lyon → Barcelona\n11 junio · horario por definir' },
     ],
-    notes: 'Parada intermedia en el trayecto Innsbruck–Barcelona.',
+    notes: '1 noche. Alojamiento por definir. Sale el 11 junio en tren hacia Barcelona.',
   },
   {
     key: 'barcelona2',
-    dateMain: '10–13 junio',
-    dur: '3 noches · Regreso',
+    dateMain: '11–13 junio',
+    dur: '2 noches · Regreso',
     stay: 'Casa de Beto & Pablo',
     stayLabel: 'Casa de amigo',
-    arrival:   { date:'10 junio', time:'Por definir' },
-    departure: { date:'13 junio', time:'14:00 PM' },
+    arrival:   { date:'11 junio', time:'Por definir' },
+    departure: { date:'13 junio', time:'13:50 PM' },
     arrivalBy: 'train',
     badges: ['stay', 'flight'],
     transport: [
-      { type:'flight', name:'AV 19 · Regreso a Bogotá', detail:'BCN → BOG\n13 junio · 14:00 → 18:10',
+      { type:'flight', name:'AV 19 · Regreso a Bogotá', detail:'BCN → BOG\n13 junio · 13:50 → 17:45',
         pdf:[{label:'Pasaje Vicente',url:'pasaje-vicente-avianca.pdf'},{label:'Pasaje Ignacio',url:'pasaje-ignacio-avianca.pdf'}],
         passengers:[
           { name:'Vicente Javier Puig Hortal',         reserva:'CAIBH6', billete:'202 2488482706', ff:'005344916930', maleta:'1 bolso 23 kg' },
@@ -476,13 +524,13 @@ const STOPS = [
 
 // Connectors between stops
 const CONNECTORS = [
-  { type:'flight', label:'AV 98', route:'SCL → BOG', detail:'20 mayo · 06:10 → 11:10' },
-  { type:'flight', label:'AV 18', route:'BOG → BCN', detail:'20 mayo · 16:00 → 09:00+1' },
+  { type:'flight', label:'AV 98', route:'SCL → BOG', detail:'20 mayo · 06:40 → 11:30' },
+  { type:'flight', label:'AV 18', route:'BOG → BCN', detail:'20 mayo · 15:35 → 08:45+1' },
   { type:'flight', label:'KL 1510', route:'BCN → AMS', detail:'26 mayo · 06:20 → 08:35' },
-  { type:'train',  label:'Tren',   route:'AMS → BER', detail:'29 mayo · por definir' },
-  { type:'train',  label:'Tren',   route:'BER → INN', detail:'6 junio · por definir' },
+  { type:'train',  label:'ICE 149', route:'AMS → BER', detail:'29 mayo · 14:00 → 19:51' },
+  { type:'train',  label:'ICE + RJ', route:'BER → MUC → INN', detail:'6 junio · 10:42 → 17:18' },
   { type:'train',  label:'Tren',   route:'INN → LYO', detail:'10 junio · por definir' },
-  { type:'train',  label:'Tren',   route:'LYO → BCN', detail:'10 junio · por definir' },
+  { type:'train',  label:'Tren',   route:'LYO → BCN', detail:'11 junio · por definir' },
 ];
 
 const INSURANCE = {
@@ -514,8 +562,8 @@ STOPS.forEach((stop, i) => {
   card.className = 'city-card';
 
   const stayLine = stop.stayLabel
-    ? `<div class="cc-stay">${IC.stay.replace('fill="#F1F1F1"','fill="rgba(52,26,2,.55)"')} ${stop.stayLabel}: ${stop.stay.split('\n')[0]}</div>`
-    : (stop.stay ? `<div class="cc-stay" style="color:rgba(52,26,2,.38);font-size:.62rem">${stop.stay}</div>` : '');
+    ? `<div class="cc-stay">${IC.stay} ${stop.stayLabel}: ${stop.stay.split('\n')[0]}</div>`
+    : (stop.stay ? `<div class="cc-stay" style="color:var(--secondary);font-size:.62rem">${stop.stay}</div>` : '');
 
   const badges = stop.badges.map(b => {
     const { cls, icon, label } = badgeMap[b];
@@ -547,123 +595,235 @@ STOPS.forEach((stop, i) => {
     const tc = document.createElement('div');
     tc.className = 'tc-block';
     tc.innerHTML = `
-      <div class="tc-spine"></div>
-      <div class="tc-content">
-        <div class="tc-route ${isFlight ? 'tc-line-flight' : 'tc-line-train'}">
-          ${isFlight ? IC.flight : IC.train}
-          ${conn.label} · ${conn.route}
-        </div>
-        <div class="tc-detail">${conn.detail}</div>
+      <div class="tc-route ${isFlight ? 'tc-line-flight' : 'tc-line-train'}">
+        ${isFlight ? IC.flight : IC.train}
+        ${conn.label} · ${conn.route}
       </div>`;
     itinList.appendChild(tc);
   }
 });
 
-// ── Render documents ──────────────────────────────────────────────────────────
+// ── Render documents (flip cards) ────────────────────────────────────────────
 const docPasses = document.getElementById('doc-passes');
 
-// Avianca pass
-const aviancaPass = document.createElement('div');
-aviancaPass.className = 'pass';
-aviancaPass.innerHTML = `
-  <div class="pass-hdr">
-    <div class="pass-type">Avianca · CAIBH6</div>
-    <div class="pass-route">Santiago → Bogotá → Barcelona</div>
-    <div class="pass-sub">20 mayo 2026 · Ida y Vuelta</div>
-  </div>
-  <div class="pass-sep"></div>
-  <div class="pass-body">
-    <div class="pass-field-row">
-      <div class="pf"><div class="pf-label">Origen</div><div class="pf-val">SCL</div></div>
-      <div class="pf"><div class="pf-label">Escalas</div><div class="pf-val">BOG</div></div>
-      <div class="pf"><div class="pf-label">Destino</div><div class="pf-val">BCN</div></div>
-    </div>
-    <div class="divider" style="margin:10px 0 8px"></div>
-    <div class="pass-row">
-      <div>
-        <div class="pr-name">Vicente Javier Puig Hortal</div>
-        <div class="pr-meta" style="text-align:left;margin-top:3px">Billete 202 2488482706 · FF 005344916930<br>Maleta: 1 bolso 23 kg</div>
-      </div>
-    </div>
-    <div class="pass-row">
-      <div>
-        <div class="pr-name">Ignacio Andrés Rodríguez Sepúlveda</div>
-        <div class="pr-meta" style="text-align:left;margin-top:3px">Billete 202 2488482707 · Sin FF<br>Maleta: No incluida</div>
-      </div>
-    </div>
-  </div>
-  <div class="pass-actions">
-    <a class="pass-btn" href="pasaje-vicente-avianca.pdf" target="_blank">${IC.flight} Pasaje Vicente</a>
-    <a class="pass-btn" href="pasaje-ignacio-avianca.pdf" target="_blank">${IC.flight} Pasaje Ignacio</a>
-  </div>`;
-docPasses.appendChild(aviancaPass);
+const BIG_FLIGHT = `<svg xmlns="http://www.w3.org/2000/svg" height="96" viewBox="0 -960 960 960" width="96" fill="#fff"><path d="M308.46-120v-61.54l113.85-80.15v-173.23L120-313.08v-78.46l302.31-213.23v-177.54q0-23.77 16.96-40.73Q456.23-840 480-840q23.77 0 40.73 16.96 16.96 16.96 16.96 40.73v177.54L840-391.54v78.46L537.69-434.92v173.23l113.08 80.15V-120L480-172.31 308.46-120Z"/></svg>`;
+const BIG_TRAIN  = `<svg xmlns="http://www.w3.org/2000/svg" height="96" viewBox="0 -960 960 960" width="96" fill="#fff"><path d="M180-347.69V-720q0-46.08 25-73.73 25-27.65 66.73-42.23 41.73-14.58 95.96-19.31Q421.92-860 480-860q62.15 0 116.81 4.73 54.65 4.73 95.46 19.31 40.81 14.58 64.27 42.23Q780-766.08 780-720v372.31q0 53.61-37.04 90.65Q705.92-220 652.31-220l60 60v20h-56.92l-80-80H384.61l-80 80h-56.92v-20l60-60q-53.61 0-90.65-37.04Q180-294.08 180-347.69ZM480-800q-111.77 0-163.08 14.04-51.31 14.04-65.84 36.73h460.31q-12.7-23.92-64.31-37.35Q595.46-800 480-800ZM240-540h210v-149.23H240V-540Zm270 60H240h480-170ZM510-540h210v-149.23H510V-540ZM377.42-342.58q14.89-14.88 14.89-37.42t-14.89-37.42q-14.88-14.89-37.42-14.89t-37.42 14.89q-14.89 14.88-14.89 37.42t14.89 37.42q14.88 14.89 37.42 14.89t37.42-14.89Zm280 0q14.89-14.88 14.89-37.42t-14.89-37.42q-14.88-14.89-37.42-14.89t-37.42 14.89q-14.89 14.88-14.89 37.42t14.89 37.42q14.88 14.89 37.42 14.89t37.42-14.89ZM307.69-280h344.62q28.69 0 48.19-19.5Q720-319 720-347.69V-480H240v132.31q0 28.69 19.5 48.19Q279-280 307.69-280ZM480-749.23H711.39 251.08 480Z"/></svg>`;
+const BIG_SHIELD = `<svg xmlns="http://www.w3.org/2000/svg" height="96" viewBox="0 -960 960 960" width="96" fill="#fff"><path d="M440-120v-240L200-226l-80-138 240-138-240-138 80-138 240 134v-236h160v236l240-134 80 138-240 138 240 138-80 138-240-134v240H440Z"/></svg>`;
 
-// KLM pass
-const klmPass = document.createElement('div');
-klmPass.className = 'pass';
-klmPass.innerHTML = `
-  <div class="pass-hdr">
-    <div class="pass-type">KLM · YQ2W6R</div>
-    <div class="pass-route">Barcelona → Amsterdam</div>
-    <div class="pass-sub">26 mayo 2026 · KL 1510</div>
-  </div>
-  <div class="pass-sep"></div>
-  <div class="pass-body">
-    <div class="pass-field-row">
-      <div class="pf"><div class="pf-label">Sale</div><div class="pf-val">BCN 06:20</div></div>
-      <div class="pf"><div class="pf-label">Llega</div><div class="pf-val">AMS 08:35</div></div>
-      <div class="pf"><div class="pf-label">Maletas</div><div class="pf-val">Por conf.</div></div>
-    </div>
-    <div class="divider" style="margin:10px 0 8px"></div>
-    <div class="pass-row">
-      <div>
-        <div class="pr-name">Vicente Javier Puig Hortal</div>
-        <div class="pr-meta" style="text-align:left;margin-top:3px">Billete 0742137220986 · FF 005344916930</div>
-      </div>
-    </div>
-    <div class="pass-row">
-      <div>
-        <div class="pr-name">Ignacio Andrés Rodríguez Sepúlveda</div>
-        <div class="pr-meta" style="text-align:left;margin-top:3px">Billete 0742137220987 · Sin FF</div>
-      </div>
-    </div>
-  </div>
-  <div class="pass-actions" style="color:rgba(52,26,2,.4);font-size:.65rem;padding:12px 16px;">
-    Pasaje PDF no disponible
-  </div>`;
-docPasses.appendChild(klmPass);
+function makePass(frontContent, backContent, iconHtml = BIG_FLIGHT, hdrColor = null) {
+  const wrap  = document.createElement('div');  wrap.className = 'pass-wrap';
+  const inner = document.createElement('div');  inner.className = 'pass-inner';
 
-// Insurance pass
-const insPass = document.createElement('div');
-insPass.className = 'pass';
+  const front = document.createElement('div');
+  front.className = 'pass-face pass-face-front';
+  if (hdrColor) front.style.background = hdrColor;
+  front.innerHTML = `
+    <span class="pass-hint">Toca para ver más</span>
+    ${frontContent}
+    <div class="pass-front-icon">${iconHtml}</div>`;
+
+  const back  = document.createElement('div');
+  back.className  = 'pass-face pass-face-back';
+  // Apply header color to back face header too
+  const coloredBack = hdrColor
+    ? backContent.replace('<div class="pass-hdr">', `<div class="pass-hdr" style="background:${hdrColor}">`)
+    : backContent;
+  back.innerHTML  = coloredBack + `<div class="pass-back-hint">Toca para cerrar</div>`;
+
+  inner.appendChild(front);
+  inner.appendChild(back);
+  wrap.appendChild(inner);
+
+  wrap.addEventListener('click', e => {
+    if (inner.classList.contains('flipped') && e.target.closest('a, button')) return;
+    inner.classList.toggle('flipped');
+  });
+
+  return wrap;
+}
+
+// Avianca
+docPasses.appendChild(makePass(
+  `<div class="pass-type">Avianca · CAIBH6</div>
+   <div class="pass-route">Santiago → Bogotá → Barcelona</div>
+   <div class="pass-sub">20 mayo 2026 · Ida y Vuelta</div>`,
+  `<div class="pass-hdr">
+     <div class="pass-type">Avianca · CAIBH6</div>
+     <div class="pass-route">Santiago → Bogotá → Barcelona</div>
+     <div class="pass-sub">20 mayo 2026 · Ida y Vuelta</div>
+   </div>
+   <div class="pass-sep"></div>
+   <div class="pass-body">
+     <div style="font-size:.58rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--tertiary);padding:2px 0 5px">AV98 · SCL → BOG · Operado por WAMOS</div>
+     <div class="pass-field-row" style="padding:0 0 8px">
+       <div class="pf"><div class="pf-label">Sale</div><div class="pf-val">06:40</div></div>
+       <div class="pf"><div class="pf-label">Llega</div><div class="pf-val">11:30</div></div>
+       <div class="pf"><div class="pf-label">Clase</div><div class="pf-val">Económica</div></div>
+     </div>
+     <div style="font-size:.58rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--tertiary);padding:2px 0 5px">AV18 · BOG → BCN · Avianca</div>
+     <div class="pass-field-row" style="padding:0 0 10px">
+       <div class="pf"><div class="pf-label">Sale</div><div class="pf-val">15:35</div></div>
+       <div class="pf"><div class="pf-label">Llega</div><div class="pf-val">08:45+1</div></div>
+       <div class="pf"><div class="pf-label">Clase</div><div class="pf-val">Económica</div></div>
+     </div>
+     <div class="divider" style="margin:4px 0 8px"></div>
+     <div class="pass-row"><div>
+       <div class="pr-name">Vicente Javier Puig Hortal</div>
+       <div class="pr-meta">Billete 202 2488482706 · FF 005344916930<br>Maleta: 1 bolso 23 kg</div>
+     </div></div>
+     <div class="pass-row"><div>
+       <div class="pr-name">Ignacio Andrés Rodríguez Sepúlveda</div>
+       <div class="pr-meta">Billete 202 2488482707 · Sin FF<br>Maleta: No incluida</div>
+     </div></div>
+   </div>
+   <div class="pass-actions">
+     <a class="pass-btn" href="pasaje-vicente-avianca.pdf" target="_blank">${IC.flight} Pasaje Vicente</a>
+     <a class="pass-btn" href="pasaje-ignacio-avianca.pdf" target="_blank">${IC.flight} Pasaje Ignacio</a>
+   </div>`
+));
+
+// KLM
+docPasses.appendChild(makePass(
+  `<div class="pass-type">KLM · YQ2W6R</div>
+   <div class="pass-route">Barcelona → Amsterdam</div>
+   <div class="pass-sub">26 mayo 2026 · KL 1510</div>`,
+  `<div class="pass-hdr">
+     <div class="pass-type">KLM · YQ2W6R</div>
+     <div class="pass-route">Barcelona → Amsterdam</div>
+     <div class="pass-sub">26 mayo 2026 · KL 1510</div>
+   </div>
+   <div class="pass-sep"></div>
+   <div class="pass-body">
+     <div class="pass-field-row">
+       <div class="pf"><div class="pf-label">Sale</div><div class="pf-val">BCN 06:20</div></div>
+       <div class="pf"><div class="pf-label">Llega</div><div class="pf-val">AMS 08:35</div></div>
+       <div class="pf"><div class="pf-label">Maletas</div><div class="pf-val">Por conf.</div></div>
+     </div>
+     <div class="divider" style="margin:10px 0 8px"></div>
+     <div class="pass-row"><div>
+       <div class="pr-name">Vicente Javier Puig Hortal</div>
+       <div class="pr-meta">Billete 0742137220986 · FF 005344916930</div>
+     </div></div>
+     <div class="pass-row"><div>
+       <div class="pr-name">Ignacio Andrés Rodríguez Sepúlveda</div>
+       <div class="pr-meta">Billete 0742137220987 · Sin FF</div>
+     </div></div>
+   </div>
+   <div class="pass-actions" style="color:var(--tertiary);font-size:.65rem;padding:12px 18px 16px;">
+     Pasaje PDF no disponible
+   </div>`
+));
+
+// Tren Amsterdam → Berlín
+docPasses.appendChild(makePass(
+  `<div class="pass-type">Eurail · VTQLRGV</div>
+   <div class="pass-route">Amsterdam → Berlín</div>
+   <div class="pass-sub">29 mayo 2026 · ICE 149</div>`,
+  `<div class="pass-hdr">
+     <div class="pass-type">Eurail · VTQLRGV</div>
+     <div class="pass-route">Amsterdam → Berlín</div>
+     <div class="pass-sub">29 mayo 2026 · ICE 149</div>
+   </div>
+   <div class="pass-sep"></div>
+   <div class="pass-body">
+     <div class="pass-field-row">
+       <div class="pf"><div class="pf-label">Sale</div><div class="pf-val">AMS 14:00</div></div>
+       <div class="pf"><div class="pf-label">Llega</div><div class="pf-val">BER 19:51</div></div>
+       <div class="pf"><div class="pf-label">Clase</div><div class="pf-val">2ª · ICE</div></div>
+     </div>
+     <div class="divider" style="margin:10px 0 8px"></div>
+     <div class="pass-row" style="border-bottom:none;padding:0 0 8px">
+       <div class="pr-meta">Coche 23 · Asientos 53 y 54 · No fumador · Zona media</div>
+     </div>
+     <div class="divider" style="margin:4px 0 8px"></div>
+     <div class="pass-row"><div>
+       <div class="pr-name">Vicente Javier Puig Hortal</div>
+       <div class="pr-meta">DNR VTQLRGV</div>
+     </div></div>
+     <div class="pass-row"><div>
+       <div class="pr-name">Ignacio Andrés Rodríguez Sepúlveda</div>
+       <div class="pr-meta">DNR VTQLRGV</div>
+     </div></div>
+   </div>
+   <div class="pass-actions">
+     <a class="pass-btn" data-type="train" href="tren-amsterdam-berlin.pdf" target="_blank">${IC.train} ICE Amsterdam–Berlín</a>
+   </div>`,
+  BIG_TRAIN, '#AC7F5E'
+));
+
+// Tren Berlín → Munich → Innsbruck
+docPasses.appendChild(makePass(
+  `<div class="pass-type">Deutsche Bahn · ZSQ2821U01 / QSXVJSS</div>
+   <div class="pass-route">Berlín → Munich → Innsbruck</div>
+   <div class="pass-sub">6 junio 2026 · ICE 1007 + Railjet 89</div>`,
+  `<div class="pass-hdr">
+     <div class="pass-type">Deutsche Bahn · ZSQ2821U01 / QSXVJSS</div>
+     <div class="pass-route">Berlín → Munich → Innsbruck</div>
+     <div class="pass-sub">6 junio 2026 · ICE 1007 + Railjet 89</div>
+   </div>
+   <div class="pass-sep"></div>
+   <div class="pass-body">
+     <div class="pass-field-row">
+       <div class="pf"><div class="pf-label">Sale</div><div class="pf-val">BER 10:42</div></div>
+       <div class="pf"><div class="pf-label">Munich</div><div class="pf-val">14:45</div></div>
+       <div class="pf"><div class="pf-label">Llega</div><div class="pf-val">INN 17:18</div></div>
+     </div>
+     <div class="divider" style="margin:10px 0 6px"></div>
+     <div style="font-size:.58rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--tertiary);padding:2px 0 5px">ICE 1007 · Berlín Südkreuz → München Hbf</div>
+     <div class="pass-row" style="border-bottom:none;padding:0 0 8px">
+       <div class="pr-meta">Coche 23 · Asientos 055 y 057 · Clase 2 · No fumador · Zona media</div>
+     </div>
+     <div style="font-size:.58rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--tertiary);padding:2px 0 5px">RJ 89 · München Hbf → Innsbruck Hbf</div>
+     <div class="pass-row" style="border-bottom:none;padding:0 0 10px">
+       <div class="pr-meta">Coche 263 · Asientos 51 y 52 · Clase 2 · No fumador · Vagón abierto · Ventana / Pasillo</div>
+     </div>
+     <div class="divider" style="margin:4px 0 8px"></div>
+     <div class="pass-row"><div>
+       <div class="pr-name">Vicente Javier Puig Hortal</div>
+       <div class="pr-meta">Pedido ZSQ2821U01 · DNR QSXVJSS</div>
+     </div></div>
+     <div class="pass-row"><div>
+       <div class="pr-name">Ignacio Andrés Rodríguez Sepúlveda</div>
+       <div class="pr-meta">Pedido ZSQ2821U01 · DNR QSXVJSS</div>
+     </div></div>
+   </div>
+   <div class="pass-actions">
+     <a class="pass-btn" data-type="train" href="tren-berlin-munich.pdf" target="_blank">${IC.train} ICE Berlín–Munich</a>
+     <a class="pass-btn" data-type="train" href="tren-munich-innsbruck.pdf" target="_blank">${IC.train} Railjet Munich–Innsbruck</a>
+   </div>`,
+  BIG_TRAIN, '#AC7F5E'
+));
+
+// Seguro
 const insPaxRows = INSURANCE.pasajeros.map(p => `
   <div class="ins-pax-row">
     <div class="ins-pax-name">${p.nombre}</div>
-    <div class="ins-pax-meta">
-      Pasaporte ${p.pasaporte} · Nac. ${p.nacimiento}<br>
-      Cert. ${p.certificado}
-    </div>
+    <div class="ins-pax-meta">Pasaporte ${p.pasaporte} · Nac. ${p.nacimiento}<br>Cert. ${p.certificado}</div>
   </div>`).join('');
 const insPdfBtns = INSURANCE.pasajeros.map(p =>
-  `<a class="pass-btn" href="${p.pdf}" target="_blank">${IC.shield.replace('fill="#F1F1F1"','fill="#341A02"')} Seguro ${p.nombre.split(' ')[0]}</a>`
+  `<a class="pass-btn" href="${p.pdf}" target="_blank">${IC.shield} Seguro ${p.nombre.split(' ')[0]}</a>`
 ).join('');
-insPass.innerHTML = `
-  <div class="pass-hdr">
-    <div class="pass-type">Seguro de Viaje · Visa Signature</div>
-    <div class="pass-route">Cobertura Schengen</div>
-    <div class="pass-sub">${INSURANCE.cobertura}</div>
-  </div>
-  <div class="pass-sep"></div>
-  <div class="pass-body">
-    ${insPaxRows}
-    <div class="ins-emerg">
-      <div class="ins-emerg-label">Emergencias</div>
-      <div class="ins-emerg-line">Fuera EEUU: ${INSURANCE.emergencia_local}</div>
-      <div class="ins-emerg-line">EEUU: ${INSURANCE.emergencia_usa}</div>
-    </div>
-  </div>
-  <div class="pass-actions">${insPdfBtns}</div>`;
-docPasses.appendChild(insPass);
+docPasses.appendChild(makePass(
+  `<div class="pass-type">Seguro de Viaje · Visa Signature</div>
+   <div class="pass-route">Cobertura Schengen</div>
+   <div class="pass-sub">${INSURANCE.cobertura}</div>`,
+  `<div class="pass-hdr">
+     <div class="pass-type">Seguro de Viaje · Visa Signature</div>
+     <div class="pass-route">Cobertura Schengen</div>
+     <div class="pass-sub">${INSURANCE.cobertura}</div>
+   </div>
+   <div class="pass-sep"></div>
+   <div class="pass-body">
+     ${insPaxRows}
+     <div class="ins-emerg">
+       <div class="ins-emerg-label">Emergencias</div>
+       <div class="ins-emerg-line">Fuera EEUU: ${INSURANCE.emergencia_local}</div>
+       <div class="ins-emerg-line">EEUU: ${INSURANCE.emergencia_usa}</div>
+     </div>
+   </div>
+   <div class="pass-actions">${insPdfBtns}</div>`,
+  BIG_SHIELD, '#0088FF'
+));
 
 // ── Sheet ─────────────────────────────────────────────────────────────────────
 const sheet       = document.getElementById('sheet');
@@ -745,41 +905,17 @@ let sheetStartY = 0;
 sheet.addEventListener('touchstart', e => { sheetStartY = e.touches[0].clientY; }, { passive: true });
 sheet.addEventListener('touchmove',  e => { if (e.touches[0].clientY - sheetStartY > 60) closeSheet(); }, { passive: true });
 
-// ── Wallet stack ──────────────────────────────────────────────────────────────
-const PEEK = 62; // px of each background card visible below the front card
-let activePassIdx = 0;
-
-function layoutPasses() {
-  const passes = [...document.querySelectorAll('.pass')];
-  if (!passes.length) return;
-
-  // Measure the active card's full height
-  const activeCard  = passes[activePassIdx];
-  const activeH     = activeCard.offsetHeight;
-  const stackEl     = document.getElementById('doc-passes');
-  stackEl.style.height = (activeH + (passes.length - 1) * PEEK) + 'px';
-
-  passes.forEach((pass, i) => {
-    // order: 0 = front, 1 = second, 2 = third…
-    const order = (i - activePassIdx + passes.length) % passes.length;
-    pass.style.top     = order === 0 ? '0px' : (activeH + (order - 1) * PEEK) + 'px';
-    pass.style.zIndex  = passes.length + 1 - order;
-    pass.classList.toggle('pass-front', order === 0);
+// ── Flip card — sync front face height to back face ───────────────────────────
+function syncFlipHeights() {
+  document.querySelectorAll('.pass-wrap').forEach(wrap => {
+    const back  = wrap.querySelector('.pass-face-back');
+    const inner = wrap.querySelector('.pass-inner');
+    const h = back.offsetHeight;
+    inner.style.height = h + 'px';
   });
 }
-
-// Tap any non-front card → bring it to front
-document.querySelectorAll('.pass').forEach((pass, i) => {
-  pass.addEventListener('click', () => {
-    if (i === activePassIdx) return;
-    activePassIdx = i;
-    layoutPasses();
-  });
-});
-
-// Init after two animation frames (so offsetHeight is accurate)
-requestAnimationFrame(() => requestAnimationFrame(layoutPasses));
-window.addEventListener('resize', layoutPasses);
+requestAnimationFrame(() => requestAnimationFrame(syncFlipHeights));
+window.addEventListener('resize', syncFlipHeights);
 </script>
 </body>
 </html>
