@@ -1,8 +1,3 @@
-Aquí está el contenido completo. Cópialo todo y pégalo en el editor de GitHub:
-
----
-
-```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -14,710 +9,777 @@ Aquí está el contenido completo. Cópialo todo y pégalo en el editor de GitHu
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body {
-  width: 100%; height: 100%;
-  background: #F1F1F1;
-  font-family: 'Inter', system-ui, sans-serif;
-  overflow: hidden;
-  color: #341A02;
+
+:root {
+  --bg:        #F2F2F7;
+  --card:      #FFFFFF;
+  --primary:   #000000;
+  --secondary: #6C6C70;
+  --tertiary:  #AEAEB2;
+  --sep:       rgba(60,60,67,.12);
+  --flight:    #0A84FF;
+  --train:     #FF4400;
+  --pass-hdr:  #1C1C1E;
+  --r:         16px;
+  --r-sm:      10px;
+  --shadow:    0 1px 4px rgba(0,0,0,.08), 0 0 0 0.5px rgba(0,0,0,.04);
+}
+
+html { background: var(--bg); }
+
+body {
+  font-family: 'Inter', -apple-system, system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--primary);
   -webkit-font-smoothing: antialiased;
-  touch-action: none;
+  overflow-x: hidden;
+  min-height: 100dvh;
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 32px);
 }
 
-/* Header */
+/* ── Header ─────────────────────────────────────────────────────────────────── */
 #header {
-  position: fixed; top: env(safe-area-inset-top, 0px); left: 0; right: 0;
-  z-index: 20; padding: 14px 18px 10px;
-  display: flex; align-items: center; justify-content: space-between;
-  pointer-events: none;
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(242,242,247,.85);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  padding: calc(env(safe-area-inset-top, 0px) + 14px) 20px 13px;
+  border-bottom: 0.5px solid var(--sep);
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
 }
-#header-title h1 { font-size: .92rem; font-weight: 600; color: #341A02; }
-#header-title p  { font-size: .62rem; color: rgba(52,26,2,.45); margin-top: 2px; }
-#legend-pill {
-  display: flex; flex-direction: column; gap: 4px;
-  background: #F1F1F1; border: 0.75px solid #341A02; padding: 7px 10px;
+.hdr-title { font-size: 1rem; font-weight: 700; letter-spacing: -.02em; color: var(--primary); }
+.hdr-date  { font-size: .68rem; font-weight: 500; color: var(--secondary); white-space: nowrap; }
+
+/* ── Sections ───────────────────────────────────────────────────────────────── */
+.section { padding: 28px 16px 8px; }
+.section-label {
+  font-size: .6rem; font-weight: 600;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--secondary);
+  margin-bottom: 10px; padding: 0 4px;
 }
-.leg { display: flex; align-items: center; gap: 6px; font-size: .62rem; color: #341A02; }
-.leg-line { width: 18px; height: 0.75px; flex-shrink: 0; }
-.leg-dot  { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
 
-/* Quick access tags */
-#quick-access {
-  padding: 8px 14px 0;
-  display: flex; gap: 6px; flex-wrap: nowrap;
-  overflow-x: auto; scrollbar-width: none;
-}
-#quick-access::-webkit-scrollbar { display: none; }
+/* ── Itinerary timeline ─────────────────────────────────────────────────────── */
+.itin-list { display: flex; flex-direction: column; }
 
-.qa-block { flex-shrink: 0; }
-
-.qa-tag {
-  display: flex; align-items: center; gap: 5px;
-  border: 0.75px solid #341A02;
-  padding: 5px 11px;
-  font-size: .7rem; font-weight: 600; color: #341A02;
-  background: #F1F1F1;
-  cursor: pointer; white-space: nowrap;
+/* City card */
+.city-card {
+  background: var(--card);
+  border-radius: var(--r);
+  box-shadow: var(--shadow);
+  cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  transition: background .15s, color .15s;
-  letter-spacing: .02em;
-}
-.qa-tag.open {
-  background: #341A02; color: #F1F1F1;
-}
-.qa-tag.open svg { fill: #F1F1F1; }
-
-.qa-panel {
-  max-height: 0;
+  transition: opacity .15s;
   overflow: hidden;
-  transition: max-height .3s cubic-bezier(.32,.72,0,1);
-  border: 0.75px solid #341A02;
-  border-top: none;
 }
-.qa-panel.open { max-height: 300px; }
-.qa-panel-inner { padding: 10px 12px 12px; }
-
-#map-svg { display:block; position:fixed; inset:0; width:100%; height:100%; background:#F1F1F1; z-index:0; }
-#map-svg text { pointer-events:none; }
-
-/* Timeline strip */
-#bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 20; padding-bottom: env(safe-area-inset-bottom, 0px); }
-#timeline-scroll {
-  overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch;
-  scrollbar-width: none; padding: 10px 14px 14px; display: flex; gap: 8px;
+.city-card:active { opacity: .7; }
+.city-card-head {
+  padding: 14px 16px 14px;
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
 }
-#timeline-scroll::-webkit-scrollbar { display: none; }
-.tl {
-  flex-shrink: 0; background: #F1F1F1; border: 0.75px solid #341A02;
-  padding: 9px 12px; cursor: pointer; min-width: 155px; transition: background .15s;
-  -webkit-tap-highlight-color: transparent;
+.cc-left  { flex: 1; min-width: 0; }
+.cc-right { flex-shrink: 0; text-align: right; }
+.cc-name    { font-size: 1.1rem; font-weight: 700; letter-spacing: -.02em; line-height: 1; color: var(--primary); }
+.cc-country { font-size: .62rem; font-weight: 500; color: var(--secondary); margin-top: 3px; }
+.cc-stay    { font-size: .7rem; color: var(--secondary); margin-top: 8px; line-height: 1.3; }
+.cc-date    { font-size: .72rem; font-weight: 600; color: var(--primary); line-height: 1.2; }
+.cc-dur     { font-size: .6rem; color: var(--tertiary); margin-top: 3px; }
+.cc-badges  { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 11px; }
+
+/* Transport connector between cards */
+.tc-block {
+  display: flex; align-items: stretch;
+  padding: 0 20px;
 }
-.tl:active, .tl.active { background: rgba(52,26,2,.08); }
-.tl-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
-.tl-date   { font-size: .6rem; color: rgba(52,26,2,.45); font-weight: 500; letter-spacing: .04em; text-transform: uppercase; }
-.tl-route  { font-size: .78rem; font-weight: 600; color: #341A02; }
-.tl-sub    { font-size: .63rem; color: rgba(52,26,2,.5); margin-top: 2px; }
-
-/* Sheet backdrop */
-#sheet-backdrop {
-  position: fixed; inset: 0; background: rgba(0,0,0,0); z-index: 30;
-  display: none; transition: background .25s;
+.tc-spine {
+  width: 1px;
+  background: var(--sep);
+  margin: 0 7px 0 11px; flex-shrink: 0;
 }
-#sheet-backdrop.visible { background: rgba(0,0,0,.2); }
+.tc-content { padding: 6px 0 6px 10px; flex: 1; }
+.tc-route  { font-size: .7rem; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+.tc-detail { font-size: .62rem; color: var(--secondary); margin-top: 2px; }
+.tc-line-flight { color: var(--flight); }
+.tc-line-train  { color: var(--train); }
 
-/* Bottom sheet */
-#sheet {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
-  background: #F1F1F1;
-  border-top: 0.75px solid #341A02;
-  border-left: 0.75px solid #341A02;
-  border-right: 0.75px solid #341A02;
-  padding-bottom: env(safe-area-inset-bottom, 16px);
-  transform: translateY(100%);
-  transition: transform .3s cubic-bezier(.32,.72,0,1);
-  touch-action: pan-y;
-  max-height: 82vh;
-  overflow-y: auto;
-}
-#sheet.open { transform: translateY(0); }
-#sheet-handle-area { display: flex; justify-content: center; padding: 12px 0 4px; cursor: pointer; position: sticky; top: 0; background: #F1F1F1; z-index: 1; }
-#sheet-handle { width: 36px; height: 3px; background: rgba(52,26,2,.2); border-radius: 2px; }
-
-#sheet-content { padding: 4px 18px 24px; }
-
-/* Card typography */
-.sc-city    { font-size: 1.2rem; font-weight: 700; color: #341A02; letter-spacing: -.01em; }
-.sc-country { font-size: .7rem; color: rgba(52,26,2,.45); margin-top: 2px; margin-bottom: 12px; }
-.divider    { height: 0.75px; background: rgba(52,26,2,.12); margin: 10px 0; }
-.sc-section { margin-top: 12px; }
-.sc-label   { font-size: .6rem; font-weight: 600; color: rgba(52,26,2,.45); letter-spacing: .07em; text-transform: uppercase; margin-bottom: 6px; }
-.sc-value   { font-size: .8rem; color: #341A02; line-height: 1.5; }
-
-/* Dates grid */
-.dates-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.date-block { display: flex; flex-direction: column; gap: 2px; }
-.date-tag   { font-size: .58rem; font-weight: 600; color: rgba(52,26,2,.4); letter-spacing: .07em; text-transform: uppercase; }
-.date-val   { font-size: .78rem; font-weight: 500; color: #341A02; }
-.date-time  { font-size: .68rem; color: rgba(52,26,2,.55); margin-top: 1px; }
-
-/* Places */
-.places-grid { display: flex; flex-wrap: wrap; gap: 6px; }
-.place-tag {
-  display: inline-flex; align-items: center; gap: 5px;
-  border: 0.75px solid rgba(52,26,2,.3); padding: 4px 10px;
-  font-size: .68rem; font-weight: 500; color: #341A02;
-  text-decoration: none; letter-spacing: .01em;
-  transition: background .12s, border-color .12s;
-  -webkit-tap-highlight-color: transparent;
-}
-.place-tag:active { background: #341A02; color: #F1F1F1; border-color: #341A02; }
-.place-tag svg { flex-shrink: 0; }
-
-/* Transport rows */
-.transport-row {
-  display: flex; align-items: flex-start; gap: 10px;
-  padding: 8px 0; border-bottom: 0.75px solid rgba(52,26,2,.08);
-}
-.transport-row:last-child { border-bottom: none; }
-.tr-icon { flex-shrink: 0; margin-top: 1px; }
-.tr-body { flex: 1; }
-.tr-name { font-size: .78rem; font-weight: 600; color: #341A02; }
-.tr-detail { font-size: .7rem; color: rgba(52,26,2,.55); margin-top: 2px; line-height: 1.4; }
-.tr-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.pdf-btn {
+/* ── Badges ─────────────────────────────────────────────────────────────────── */
+.badge {
   display: inline-flex; align-items: center; gap: 4px;
-  font-size: .6rem; font-weight: 600; color: #341A02;
-  border: 0.75px solid #341A02; padding: 2px 7px;
-  text-decoration: none; flex-shrink: 0;
-  letter-spacing: .03em;
-  transition: background .12s, color .12s, border-color .12s;
+  padding: 3px 9px; font-size: .6rem; font-weight: 600;
+  border-radius: 100px;
 }
-.pdf-btn:active                    { background: rgba(52,26,2,.08); }
-.pdf-btn[data-type="flight"]:active { background: #00AAFF; color: #341A02; border-color: #00AAFF; }
-.pdf-btn[data-type="train"]:active  { background: #FF4400; color: #341A02; border-color: #FF4400; }
+.badge-flight  { background: rgba(10,132,255,.12); color: var(--flight); }
+.badge-train   { background: rgba(255,68,0,.1);    color: var(--train);  }
+.badge-stay    { background: rgba(0,0,0,.07);       color: var(--primary); }
+.badge-transit { background: rgba(0,0,0,.05);       color: var(--secondary); }
 
-/* Passengers */
-.passengers {
-  margin-top: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+/* ── Document passes — wallet stack ─────────────────────────────────────────── */
+.doc-passes { position: relative; overflow: hidden; /* height set by JS */ }
+
+.pass {
+  position: absolute; left: 0; right: 0;
+  background: var(--card);
+  border-radius: var(--r);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: top .42s cubic-bezier(.32,.72,0,1),
+              box-shadow .2s;
+  will-change: top;
 }
-.pax-row {
-  background: rgba(52,26,2,.04);
-  border: 0.75px solid rgba(52,26,2,.12);
-  padding: 7px 10px;
+.pass.pass-front {
+  cursor: default;
+  box-shadow: 0 6px 24px rgba(0,0,0,.13), 0 0 0 0.5px rgba(0,0,0,.04);
 }
-.pax-name  { font-size: .72rem; font-weight: 600; color: #341A02; }
-.pax-field { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
-.pax-label { font-size: .58rem; font-weight: 600; color: rgba(52,26,2,.4); letter-spacing: .05em; text-transform: uppercase; }
-.pax-val   { font-size: .68rem; color: #341A02; font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+/* Disable links/buttons on non-front cards so tap = bring-to-front */
+.pass:not(.pass-front) a,
+.pass:not(.pass-front) button { pointer-events: none; }
+
+/* Pass header */
+.pass-hdr {
+  background: var(--pass-hdr);
+  padding: 16px 18px 15px;
+  border-radius: var(--r) var(--r) 0 0;
+}
+.pass-type  { font-size: .55rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.4); margin-bottom: 5px; }
+.pass-route { font-size: 1.08rem; font-weight: 700; color: #FFFFFF; letter-spacing: -.015em; line-height: 1.15; }
+.pass-sub   { font-size: .67rem; color: rgba(255,255,255,.45); margin-top: 5px; }
+
+/* Dashed perforation */
+.pass-sep {
+  position: relative; height: 1px;
+  background: none;
+  border-top: 1px dashed var(--sep);
+  margin: 0 18px;
+}
+
+/* Pass body */
+.pass-body { padding: 14px 18px; }
+.pass-row  {
+  display: flex; justify-content: space-between;
+  align-items: flex-start; gap: 10px;
+  padding: 8px 0; border-bottom: 0.5px solid var(--sep);
+}
+.pass-row:last-child { border-bottom: none; }
+.pr-name { font-size: .8rem; font-weight: 600; color: var(--primary); }
+.pr-meta { font-size: .62rem; color: var(--secondary); text-align: left; margin-top: 3px; line-height: 1.5; }
+.pass-field-row { display: flex; gap: 0; padding: 10px 0 6px; }
+.pf { flex: 1; }
+.pf-label { font-size: .55rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--tertiary); margin-bottom: 3px; }
+.pf-val   { font-size: .82rem; font-weight: 700; color: var(--primary); }
+
+/* Pass actions */
+.pass-actions {
+  padding: 10px 18px 16px;
+  border-top: 0.5px solid var(--sep);
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.pass-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(0,0,0,.05); border: none;
+  border-radius: var(--r-sm);
+  padding: 7px 14px;
+  font-size: .67rem; font-weight: 600; color: var(--primary);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background .12s;
+  cursor: pointer; font-family: inherit;
+}
+.pass-btn:active { background: rgba(0,0,0,.1); }
 
 /* Insurance */
-.insurance-row {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 0; gap: 10px;
+.ins-pax-row { padding: 8px 0; border-bottom: 0.5px solid var(--sep); }
+.ins-pax-row:last-child { border-bottom: none; }
+.ins-pax-name { font-size: .8rem; font-weight: 600; color: var(--primary); }
+.ins-pax-meta { font-size: .63rem; color: var(--secondary); line-height: 1.6; margin-top: 2px; }
+.ins-emerg {
+  background: rgba(10,132,255,.06); border-radius: var(--r-sm);
+  padding: 10px 12px; margin-top: 12px;
 }
-.insurance-info { display: flex; flex-direction: column; gap: 2px; }
-.insurance-name { font-size: .78rem; font-weight: 600; color: #341A02; }
-.insurance-sub  { font-size: .68rem; color: rgba(52,26,2,.5); }
-.pdf-btn-pending {
-  display: inline-flex; align-items: center; gap: 4px;
-  font-size: .6rem; font-weight: 600;
-  border: 0.75px dashed rgba(52,26,2,.3); padding: 2px 7px;
-  color: rgba(52,26,2,.35); flex-shrink: 0; letter-spacing: .03em;
-}
+.ins-emerg-label { font-size: .55rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--flight); margin-bottom: 5px; }
+.ins-emerg-line  { font-size: .72rem; color: var(--primary); line-height: 1.6; }
 
-/* Notes */
+/* ── Sheet ──────────────────────────────────────────────────────────────────── */
+#sheet-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,0);
+  z-index: 200; display: none; transition: background .25s;
+}
+#sheet-backdrop.visible { background: rgba(0,0,0,.3); }
+
+#sheet {
+  position: fixed; left: 0; right: 0; bottom: 0;
+  z-index: 210;
+  background: var(--card);
+  border-radius: 20px 20px 0 0;
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+  max-height: 88dvh; overflow-y: auto;
+  transform: translateY(100%);
+  transition: transform .35s cubic-bezier(.32,.72,0,1);
+  touch-action: pan-y;
+  box-shadow: 0 -4px 30px rgba(0,0,0,.12);
+}
+#sheet.open { transform: translateY(0); }
+#sheet-handle-area {
+  position: sticky; top: 0; background: var(--card); z-index: 1;
+  display: flex; justify-content: center; padding: 12px 0 6px; cursor: pointer;
+  border-radius: 20px 20px 0 0;
+}
+#sheet-handle { width: 36px; height: 4px; background: var(--sep); border-radius: 100px; }
+#sheet-body { padding: 4px 20px 30px; }
+
+/* Sheet contents */
+.sh-city    { font-size: 1.3rem; font-weight: 700; letter-spacing: -.025em; color: var(--primary); }
+.sh-country { font-size: .7rem; color: var(--secondary); margin-top: 3px; margin-bottom: 16px; }
+.divider    { height: 0.5px; background: var(--sep); margin: 12px 0; }
+.sh-label   { font-size: .58rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--secondary); margin-bottom: 8px; }
+.sh-dates-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.sh-date-block .tag  { font-size: .58rem; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--tertiary); margin-bottom: 3px; }
+.sh-date-block .val  { font-size: .85rem; font-weight: 600; color: var(--primary); }
+.sh-date-block .time { font-size: .7rem; color: var(--secondary); margin-top: 2px; }
+.tr-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 0.5px solid var(--sep); }
+.tr-row:last-child { border-bottom: none; }
+.tr-body { flex: 1; }
+.tr-name   { font-size: .82rem; font-weight: 600; color: var(--primary); }
+.tr-detail { font-size: .7rem; color: var(--secondary); margin-top: 3px; line-height: 1.4; }
+.tr-head   { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.sh-pax    { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+.sh-pax-row {
+  background: var(--bg); border-radius: var(--r-sm);
+  padding: 8px 12px;
+}
+.sp-name  { font-size: .74rem; font-weight: 600; color: var(--primary); margin-bottom: 4px; }
+.sp-field { display: flex; justify-content: space-between; margin-top: 3px; }
+.sp-label { font-size: .57rem; font-weight: 600; color: var(--tertiary); letter-spacing: .05em; text-transform: uppercase; }
+.sp-val   { font-size: .67rem; color: var(--primary); font-variant-numeric: tabular-nums; }
 .notes-box {
-  background: rgba(52,26,2,.05);
-  border-left: 2px solid rgba(52,26,2,.2);
-  padding: 8px 10px;
-  margin-top: 2px;
+  background: var(--bg); border-radius: var(--r-sm);
+  padding: 10px 12px;
 }
-.notes-box p { font-size: .75rem; color: rgba(52,26,2,.7); line-height: 1.5; }
-
-/* Badges */
-.badges { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 6px; }
-.badge  { padding: 3px 10px; font-size: .67rem; font-weight: 500; display: inline-flex; align-items: center; gap: 5px; border: none; }
-.badge-flight { background: #00AAFF; color: #341A02; }
-.badge-train  { background: #FF4400; color: #341A02; }
-.badge-stay   { background: #341A02; color: #F1F1F1; }
-
-/* Loading */ }
+.notes-box p { font-size: .76rem; color: var(--secondary); line-height: 1.55; }
+.sh-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 16px; }
+.pdf-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: .62rem; font-weight: 600; color: var(--flight);
+  background: rgba(10,132,255,.08); border: none;
+  border-radius: var(--r-sm); padding: 3px 9px;
+  text-decoration: none; flex-shrink: 0;
+  transition: background .12s;
+}
+.pdf-btn:active { background: rgba(10,132,255,.15); }
+.pdf-btn[data-type="train"]         { color: var(--train); background: rgba(255,68,0,.08); }
+.pdf-btn[data-type="train"]:active  { background: rgba(255,68,0,.15); }
 </style>
 </head>
 <body>
 
-
+<!-- Header -->
 <div id="header">
-  <div id="header-title">
-    <h1>Monki Viaje 2026</h1>
-    <p>20 Mayo — 13 Junio</p>
-  </div>
-  <div id="legend-pill">
-    <div class="leg"><div class="leg-line" style="background:#00AAFF"></div>Vuelo</div>
-    <div class="leg">
-      <svg width="18" height="4" style="flex-shrink:0"><line x1="0" y1="2" x2="18" y2="2" stroke="#FF4400" stroke-width="0.75" stroke-dasharray="3,3"/></svg>Tren
-    </div>
-    <div class="leg"><div class="leg-dot" style="background:#341A02;border:1px solid #341A02"></div>Ciudad</div>
-  </div>
+  <span class="hdr-title">Monki Viaje 2026</span>
+  <span class="hdr-date">20 mayo – 13 junio</span>
 </div>
 
-<div id="bottom-bar">
-  <div id="quick-access"></div>
-  <div id="timeline-scroll"></div>
+<!-- Page -->
+<div id="page">
+
+  <!-- Itinerary -->
+  <div class="section">
+    <div class="section-label">Itinerario</div>
+    <div class="itin-list" id="itin-list"></div>
+  </div>
+
+  <!-- Documents -->
+  <div class="section">
+    <div class="section-label">Documentos</div>
+    <div class="doc-passes" id="doc-passes"></div>
+  </div>
+
 </div>
 
-<svg id="map-svg" viewBox="0 0 390 270" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-  <!-- Land masses -->
-  <polygon points="35,128 98,128 139,146 195,159 195,185 123,252 88,300 35,300 35,238"
-           fill="rgba(52,26,2,.07)" stroke="rgba(52,26,2,.12)" stroke-width="0.5"/>
-  <polygon points="278,71 390,53 390,0 322,0 295,21 284,42 278,71"
-           fill="rgba(52,26,2,.07)" stroke="rgba(52,26,2,.12)" stroke-width="0.5"/>
-  <!-- Reference lines -->
-  <line x1="0" y1="159" x2="390" y2="159" stroke="rgba(52,26,2,.06)" stroke-width="0.5" stroke-dasharray="3,6"/>
-  <line x1="0" y1="97" x2="390" y2="97" stroke="rgba(52,26,2,.04)" stroke-width="0.5" stroke-dasharray="2,8"/>
-  <line x1="313" y1="0" x2="313" y2="270" stroke="rgba(52,26,2,.04)" stroke-width="0.5" stroke-dasharray="2,8"/>
-  <!-- Routes outbound -->
-  <path d="M 67,247 Q 80,193 55,146" stroke="#00AAFF" stroke-width="0.75" fill="none"/>
-  <path d="M 55,146 Q 130,20 321,49" stroke="#00AAFF" stroke-width="0.75" fill="none"/>
-  <path d="M 321,49 Q 316,28 330,20" stroke="#00AAFF" stroke-width="0.75" fill="none"/>
-  <path d="M 330,20 Q 344,14 360,20" stroke="#FF4400" stroke-width="0.75" fill="none" stroke-dasharray="3,3"/>
-  <path d="M 360,20 Q 360,25 353,34" stroke="#FF4400" stroke-width="0.75" fill="none" stroke-dasharray="3,3"/>
-  <path d="M 353,34 Q 340,36 330,38 Q 323,44 321,49" stroke="#FF4400" stroke-width="0.75" fill="none" stroke-dasharray="3,3"/>
-  <!-- Return flight (lighter) -->
-  <path d="M 321,49 Q 130,20 55,146" stroke="#00AAFF" stroke-width="0.5" fill="none" stroke-dasharray="2,5" opacity="0.35"/>
-  <path d="M 55,146 Q 80,193 67,247" stroke="#00AAFF" stroke-width="0.5" fill="none" stroke-dasharray="2,5" opacity="0.35"/>
-  <!-- City dots -->
-  <circle id="dot-santiago"  cx="67"  cy="247" r="4"   fill="#F1F1F1" stroke="#341A02" stroke-width="1"    style="cursor:pointer" onclick="openSheet('santiago')"/>
-  <circle id="dot-bogota"    cx="55"  cy="146" r="4"   fill="#F1F1F1" stroke="#341A02" stroke-width="1"    style="cursor:pointer" onclick="openSheet('bogota')"/>
-  <circle id="dot-barcelona" cx="321" cy="49"  r="4"   fill="#F1F1F1" stroke="#341A02" stroke-width="1"    style="cursor:pointer" onclick="openSheet('barcelona')"/>
-  <circle id="dot-amsterdam" cx="330" cy="20"  r="4"   fill="#F1F1F1" stroke="#341A02" stroke-width="1"    style="cursor:pointer" onclick="openSheet('amsterdam')"/>
-  <circle id="dot-berlin"    cx="360" cy="20"  r="4"   fill="#F1F1F1" stroke="#341A02" stroke-width="1"    style="cursor:pointer" onclick="openSheet('berlin')"/>
-  <circle id="dot-innsbruck" cx="353" cy="34"  r="3.5" fill="#F1F1F1" stroke="#341A02" stroke-width="0.75" style="cursor:pointer" onclick="openSheet('innsbruck')"/>
-  <circle id="dot-lyon"      cx="330" cy="38"  r="3"   fill="#F1F1F1" stroke="#341A02" stroke-width="0.75" style="cursor:pointer" onclick="openSheet('lyon')"/>
-  <!-- Labels -->
-  <text x="73"  y="252" font-size="7.5" font-family="Inter,system-ui,sans-serif" fill="#341A02" font-weight="500">Santiago</text>
-  <text x="61"  y="141" font-size="7.5" font-family="Inter,system-ui,sans-serif" fill="#341A02" font-weight="500">Bogotá</text>
-  <text x="293" y="60"  font-size="7"   font-family="Inter,system-ui,sans-serif" fill="#341A02" font-weight="500">Barcelona</text>
-  <text x="303" y="15"  font-size="6.5" font-family="Inter,system-ui,sans-serif" fill="#341A02" font-weight="500">Ámsterdam</text>
-  <text x="345" y="15"  font-size="6.5" font-family="Inter,system-ui,sans-serif" fill="#341A02" font-weight="500">Berlín</text>
-  <text x="337" y="44"  font-size="6"   font-family="Inter,system-ui,sans-serif" fill="#341A02" font-weight="500">Innsbruck</text>
-  <text x="308" y="34"  font-size="6"   font-family="Inter,system-ui,sans-serif" fill="#341A02" font-weight="500">Lyon</text>
-</svg>
+<!-- Sheet -->
 <div id="sheet-backdrop" onclick="closeSheet()"></div>
 <div id="sheet">
   <div id="sheet-handle-area" onclick="closeSheet()"><div id="sheet-handle"></div></div>
-  <div id="sheet-content"></div>
+  <div id="sheet-body"></div>
 </div>
 
 <script>
 // ── Icons ─────────────────────────────────────────────────────────────────────
 const IC = {
-  flightUi:   `<svg xmlns="http://www.w3.org/2000/svg" height="13" viewBox="0 -960 960 960" width="13" fill="#341A02"><path d="M308.46-120v-61.54l113.85-80.15v-173.23L120-313.08v-78.46l302.31-213.23v-177.54q0-23.77 16.96-40.73Q456.23-840 480-840q23.77 0 40.73 16.96 16.96 16.96 16.96 40.73v177.54L840-391.54v78.46L537.69-434.92v173.23l113.08 80.15V-120L480-172.31 308.46-120Z"/></svg>`,
-  trainUi:    `<svg xmlns="http://www.w3.org/2000/svg" height="13" viewBox="0 -960 960 960" width="13" fill="#341A02"><path d="M180-347.69V-720q0-46.08 25-73.73 25-27.65 66.73-42.23 41.73-14.58 95.96-19.31Q421.92-860 480-860q62.15 0 116.81 4.73 54.65 4.73 95.46 19.31 40.81 14.58 64.27 42.23Q780-766.08 780-720v372.31q0 53.61-37.04 90.65Q705.92-220 652.31-220l60 60v20h-56.92l-80-80H384.61l-80 80h-56.92v-20l60-60q-53.61 0-90.65-37.04Q180-294.08 180-347.69ZM480-800q-111.77 0-163.08 14.04-51.31 14.04-65.84 36.73h460.31q-12.7-23.92-64.31-37.35Q595.46-800 480-800ZM240-540h210v-149.23H240V-540Zm412.31 60H240h480-67.69ZM510-540h210v-149.23H510V-540ZM377.42-342.58q14.89-14.88 14.89-37.42t-14.89-37.42q-14.88-14.89-37.42-14.89t-37.42 14.89q-14.89 14.88-14.89 37.42t14.89 37.42q14.88 14.89 37.42 14.89t37.42-14.89Zm280 0q14.89-14.88 14.89-37.42t-14.89-37.42q-14.88-14.89-37.42-14.89t-37.42 14.89q-14.89 14.88-14.89 37.42t14.89 37.42q14.88 14.89 37.42 14.89t37.42-14.89ZM307.69-280h344.62q28.69 0 48.19-19.5Q720-319 720-347.69V-480H240v132.31q0 28.69 19.5 48.19Q279-280 307.69-280ZM480-749.23H711.39 251.08 480Z"/></svg>`,
-  stayLight:  `<svg xmlns="http://www.w3.org/2000/svg" height="12" viewBox="0 -960 960 960" width="12" fill="#F1F1F1"><path d="M160-200v-360q0-19 8.5-36t23.5-28l280-210q21-16 48-16t48 16l280 210q15 11 23.5 28t8.5 36v360q0 33-23.5 56.5T800-120H600v-240H360v240H160q-33 0-56.5-23.5T80-200Z"/></svg>`,
+  flight: `<svg xmlns="http://www.w3.org/2000/svg" height="13" viewBox="0 -960 960 960" width="13" fill="currentColor"><path d="M308.46-120v-61.54l113.85-80.15v-173.23L120-313.08v-78.46l302.31-213.23v-177.54q0-23.77 16.96-40.73Q456.23-840 480-840q23.77 0 40.73 16.96 16.96 16.96 16.96 40.73v177.54L840-391.54v78.46L537.69-434.92v173.23l113.08 80.15V-120L480-172.31 308.46-120Z"/></svg>`,
+  train:  `<svg xmlns="http://www.w3.org/2000/svg" height="13" viewBox="0 -960 960 960" width="13" fill="currentColor"><path d="M180-347.69V-720q0-46.08 25-73.73 25-27.65 66.73-42.23 41.73-14.58 95.96-19.31Q421.92-860 480-860q62.15 0 116.81 4.73 54.65 4.73 95.46 19.31 40.81 14.58 64.27 42.23Q780-766.08 780-720v372.31q0 53.61-37.04 90.65Q705.92-220 652.31-220l60 60v20h-56.92l-80-80H384.61l-80 80h-56.92v-20l60-60q-53.61 0-90.65-37.04Q180-294.08 180-347.69ZM480-800q-111.77 0-163.08 14.04-51.31 14.04-65.84 36.73h460.31q-12.7-23.92-64.31-37.35Q595.46-800 480-800ZM240-540h210v-149.23H240V-540Zm412.31 60H240h480-67.69ZM510-540h210v-149.23H510V-540ZM377.42-342.58q14.89-14.88 14.89-37.42t-14.89-37.42q-14.88-14.89-37.42-14.89t-37.42 14.89q-14.89 14.88-14.89 37.42t14.89 37.42q14.88 14.89 37.42 14.89t37.42-14.89Zm280 0q14.89-14.88 14.89-37.42t-14.89-37.42q-14.88-14.89-37.42-14.89t-37.42 14.89q-14.89 14.88-14.89 37.42t14.89 37.42q14.88 14.89 37.42 14.89t37.42-14.89ZM307.69-280h344.62q28.69 0 48.19-19.5Q720-319 720-347.69V-480H240v132.31q0 28.69 19.5 48.19Q279-280 307.69-280ZM480-749.23H711.39 251.08 480Z"/></svg>`,
+  stay:   `<svg xmlns="http://www.w3.org/2000/svg" height="11" viewBox="0 -960 960 960" width="11" fill="#F1F1F1"><path d="M160-200v-360q0-19 8.5-36t23.5-28l280-210q21-16 48-16t48 16l280 210q15 11 23.5 28t8.5 36v360q0 33-23.5 56.5T800-120H600v-240H360v240H160q-33 0-56.5-23.5T80-200Z"/></svg>`,
+  chevron:`<svg xmlns="http://www.w3.org/2000/svg" height="12" viewBox="0 -960 960 960" width="12" fill="rgba(52,26,2,.3)"><path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"/></svg>`,
+  shield: `<svg xmlns="http://www.w3.org/2000/svg" height="13" viewBox="0 -960 960 960" width="13" fill="#F1F1F1"><path d="M480-80q-139-35-229.5-159.5T160-516v-244l320-120 320 120v244q0 152-90.5 276.5T480-80Z"/></svg>`,
 };
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 const CITIES = {
-  santiago:  { name:'Santiago',  country:'Chile',        lat:-33.4489, lng:-70.6693 },
-  bogota:    { name:'Bogotá',    country:'Colombia',     lat:  4.7110, lng:-74.0721 },
-  barcelona: { name:'Barcelona', country:'España',       lat: 41.3851, lng:  2.1734 },
-  amsterdam: { name:'Amsterdam', country:'Países Bajos', lat: 52.3676, lng:  4.9041 },
-  berlin:    { name:'Berlín',    country:'Alemania',     lat: 52.5200, lng: 13.4050 },
-  innsbruck: { name:'Innsbruck', country:'Austria',      lat: 47.2692, lng: 11.4041 },
-  lyon:      { name:'Lyon',      country:'Francia',      lat: 45.7640, lng:  4.8357 },
+  santiago:   { name:'Santiago',   country:'Chile',        lat:-33.4489, lng:-70.6693 },
+  bogota:     { name:'Bogotá',     country:'Colombia',     lat:  4.7110, lng:-74.0721 },
+  barcelona:  { name:'Barcelona',  country:'España',       lat: 41.3851, lng:  2.1734 },
+  amsterdam:  { name:'Amsterdam',  country:'Países Bajos', lat: 52.3676, lng:  4.9041 },
+  berlin:     { name:'Berlín',     country:'Alemania',     lat: 52.5200, lng: 13.4050 },
+  innsbruck:  { name:'Innsbruck',  country:'Austria',      lat: 47.2692, lng: 11.4041 },
+  lyon:       { name:'Lyon',       country:'Francia',      lat: 45.7640, lng:  4.8357 },
+  barcelona2: { name:'Barcelona',  country:'España · Regreso', lat: 41.3851, lng: 2.1734 },
 };
 
-const CITY_INFO = {
-  santiago: {
+// Itinerary stops (each city visit)
+const STOPS = [
+  {
+    key: 'santiago',
+    dateMain: '20 mayo',
+    dur: 'Origen',
+    stay: null,
+    stayLabel: null,
     arrival:   { date:'14 junio', time:'~4:45 AM' },
-    departure: { date:'20 mayo',  time:'6:40 AM' },
-    stay: 'Casa propia', stayLabel: 'Casa propia',
+    departure: { date:'20 mayo',  time:'6:10 AM' },
+    arrivalBy: null,
+    badges: [],
     transport: [
-      { type:'flight', name:'AV 98 — Salida', detail:'Santiago (SCL) → Bogotá (BOG)\n20 mayo · 06:10 → 11:10 · Terminal 2', pdf:[
-          {label:'Pasaje Ignacio', url:'pasaje-ignacio-avianca.pdf'},
-          {label:'Pasaje Vicente', url:'pasaje-vicente-avianca.pdf'},
-        ], passengers:[
-          { name:'Ignacio Andrés Rodríguez Sepúlveda', reserva:'CAIBH6', billete:'202 2488482707', ff:null, maleta:'No incluida' },
+      { type:'flight', name:'AV 98 · Ida', detail:'SCL → BOG\n20 mayo · 06:10 → 11:10 · Terminal 2',
+        pdf:[{label:'Pasaje Vicente',url:'pasaje-vicente-avianca.pdf'},{label:'Pasaje Ignacio',url:'pasaje-ignacio-avianca.pdf'}],
+        passengers:[
           { name:'Vicente Javier Puig Hortal',         reserva:'CAIBH6', billete:'202 2488482706', ff:'005344916930', maleta:'1 bolso 23 kg' },
+          { name:'Ignacio Andrés Rodríguez Sepúlveda', reserva:'CAIBH6', billete:'202 2488482707', ff:null,           maleta:'No incluida' },
         ]},
-      { type:'flight', name:'AV 97 — Regreso', detail:'Bogotá (BOG) → Santiago (SCL)\n13 junio · 21:40 → 04:15 +1 · Terminal 1', pdf:[
-          {label:'Pasaje Ignacio', url:'pasaje-ignacio-avianca.pdf'},
-          {label:'Pasaje Vicente', url:'pasaje-vicente-avianca.pdf'},
-        ], passengers:[
-          { name:'Ignacio Andrés Rodríguez Sepúlveda', reserva:'CAIBH6', billete:'202 2488482707', ff:null, maleta:'No incluida' },
+      { type:'flight', name:'AV 97 · Regreso', detail:'BOG → SCL\n13 junio · 21:40 → 04:15 +1',
+        pdf:[{label:'Pasaje Vicente',url:'pasaje-vicente-avianca.pdf'},{label:'Pasaje Ignacio',url:'pasaje-ignacio-avianca.pdf'}],
+        passengers:[
           { name:'Vicente Javier Puig Hortal',         reserva:'CAIBH6', billete:'202 2488482706', ff:'005344916930', maleta:'1 bolso 23 kg' },
+          { name:'Ignacio Andrés Rodríguez Sepúlveda', reserva:'CAIBH6', billete:'202 2488482707', ff:null,           maleta:'No incluida' },
         ]},
     ],
-    notes: 'Ciudad de origen. Vuelo de ida con escala en Bogotá. Regreso directo desde Bogotá.',
-    badges: ['stay'],
+    notes: 'Ciudad de origen. Vuelo de ida el 20 mayo, regreso a Santiago el 14 junio vía Bogotá.',
   },
-  bogota: {
-    arrival:   { date:'20 mayo', time:'11:30 AM' },
-    departure: { date:'20 mayo', time:'3:35 PM' },
-    stay: 'Aeropuerto El Dorado', stayLabel: null,
+  {
+    key: 'bogota',
+    dateMain: '20 mayo',
+    dur: 'Escala · 4h',
+    stay: 'Aeropuerto El Dorado · Terminal 1',
+    stayLabel: null,
+    arrival:   { date:'20 mayo', time:'11:10 AM' },
+    departure: { date:'20 mayo', time:'16:00 PM' },
+    arrivalBy: 'flight',
+    badges: ['transit'],
     transport: [
-      { type:'flight', name:'AV 98 — Llegada', detail:'Santiago (SCL) → Bogotá (BOG)\n20 mayo · 06:10 → 11:10 · Terminal 1', pdf:[
-          {label:'Pasaje Ignacio', url:'pasaje-ignacio-avianca.pdf'},
-          {label:'Pasaje Vicente', url:'pasaje-vicente-avianca.pdf'},
-        ], passengers:[
-          { name:'Ignacio Andrés Rodríguez Sepúlveda', reserva:'CAIBH6', billete:'202 2488482707', ff:null, maleta:'No incluida' },
+      { type:'flight', name:'AV 18 · Salida a Barcelona', detail:'BOG → BCN\n20 mayo · 16:00 → 09:00 +1',
+        pdf:[{label:'Pasaje Vicente',url:'pasaje-vicente-avianca.pdf'},{label:'Pasaje Ignacio',url:'pasaje-ignacio-avianca.pdf'}],
+        passengers:[
           { name:'Vicente Javier Puig Hortal',         reserva:'CAIBH6', billete:'202 2488482706', ff:'005344916930', maleta:'1 bolso 23 kg' },
-        ]},
-      { type:'flight', name:'AV 18 — Salida', detail:'Bogotá (BOG) → Barcelona (BCN)\n20 mayo · 16:00 → 09:00 +1 · Terminal 1', pdf:[
-          {label:'Pasaje Ignacio', url:'pasaje-ignacio-avianca.pdf'},
-          {label:'Pasaje Vicente', url:'pasaje-vicente-avianca.pdf'},
-        ], passengers:[
-          { name:'Ignacio Andrés Rodríguez Sepúlveda', reserva:'CAIBH6', billete:'202 2488482707', ff:null, maleta:'No incluida' },
-          { name:'Vicente Javier Puig Hortal',         reserva:'CAIBH6', billete:'202 2488482706', ff:'005344916930', maleta:'1 bolso 23 kg' },
+          { name:'Ignacio Andrés Rodríguez Sepúlveda', reserva:'CAIBH6', billete:'202 2488482707', ff:null,           maleta:'No incluida' },
         ]},
     ],
-    notes: 'Escala de 4h 5min en el aeropuerto. No se sale del terminal.',
-    badges: ['flight'],
+    notes: 'Escala de 4h en el aeropuerto. No se sale del terminal.',
   },
-  barcelona: {
-    arrival:   { date:'21 mayo', time:'~8:45 AM' },
+  {
+    key: 'barcelona',
+    dateMain: '21–26 mayo',
+    dur: '5 noches',
+    stay: 'Casa de Beto & Pablo',
+    stayLabel: 'Casa de amigo',
+    arrival:   { date:'21 mayo', time:'~9:00 AM' },
     departure: { date:'26 mayo', time:'6:20 AM' },
-    stay: 'Casa de Beto & Pablo', stayLabel: 'Casa de amigo',
-    places: [
-      { name:'Sagrada Família',       lat:41.4036, lng: 2.1744 },
-      { name:'Park Güell',            lat:41.4145, lng: 2.1527 },
-      { name:'La Boqueria',           lat:41.3818, lng: 2.1720 },
-      { name:'Barrio Gótico',         lat:41.3833, lng: 2.1765 },
-      { name:'Casa Batlló',           lat:41.3917, lng: 2.1649 },
-      { name:'El Born',               lat:41.3851, lng: 2.1827 },
-      { name:'Barceloneta',           lat:41.3763, lng: 2.1895 },
-      { name:'Palau de la Música',    lat:41.3875, lng: 2.1750 },
-    ],
-    transport: [
-      { type:'flight', name:'AV 18 — Llegada', detail:'Bogotá (BOG) → Barcelona (BCN)\n21 mayo · llega 09:00 · Terminal 1', pdf:[
-          {label:'Pasaje Ignacio', url:'pasaje-ignacio-avianca.pdf'},
-          {label:'Pasaje Vicente', url:'pasaje-vicente-avianca.pdf'},
-        ], passengers:[
-          { name:'Ignacio Andrés Rodríguez Sepúlveda', reserva:'CAIBH6', billete:'202 2488482707', ff:null, maleta:'No incluida' },
-          { name:'Vicente Javier Puig Hortal',         reserva:'CAIBH6', billete:'202 2488482706', ff:'005344916930', maleta:'1 bolso 23 kg' },
-        ]},
-      { type:'flight', name:'KL 1510 — Salida', detail:'Barcelona (BCN) → Amsterdam (AMS)\n26 mayo · 6:20 AM → 8:35 AM · Terminal 1', passengers:[
-        { name:'Ignacio Andrés Rodríguez Sepúlveda', reserva:'YQ2W6R', billete:'0742137220987', ff:null,           maleta:'Por confirmar' },
-        { name:'Vicente Javier Puig Hortal',         reserva:'YQ2W6R', billete:'0742137220986', ff:'005344916930', maleta:'Por confirmar' },
-      ]},
-      { type:'flight', name:'AV 19 — Regreso', detail:'Barcelona (BCN) → Bogotá (BOG)\n13 junio · 14:00 → 18:10 · Terminal 1', pdf:[
-          {label:'Pasaje Ignacio', url:'pasaje-ignacio-avianca.pdf'},
-          {label:'Pasaje Vicente', url:'pasaje-vicente-avianca.pdf'},
-        ], passengers:[
-          { name:'Ignacio Andrés Rodríguez Sepúlveda', reserva:'CAIBH6', billete:'202 2488482707', ff:null, maleta:'No incluida' },
-          { name:'Vicente Javier Puig Hortal',         reserva:'CAIBH6', billete:'202 2488482706', ff:'005344916930', maleta:'1 bolso 23 kg' },
-        ]},
-    ],
-    notes: 'Estadía ida: 21–26 mayo (5 noches). Regreso desde Innsbruck en tren el 10 junio con parada en Lyon. Vuelo de regreso a Santiago el 13 junio.',
+    arrivalBy: 'flight',
     badges: ['stay', 'flight'],
+    transport: [
+      { type:'flight', name:'KL 1510 · Salida a Amsterdam', detail:'BCN → AMS\n26 mayo · 06:20 → 08:35',
+        passengers:[
+          { name:'Vicente Javier Puig Hortal',         reserva:'YQ2W6R', billete:'0742137220986', ff:'005344916930', maleta:'Por confirmar' },
+          { name:'Ignacio Andrés Rodríguez Sepúlveda', reserva:'YQ2W6R', billete:'0742137220987', ff:null,           maleta:'Por confirmar' },
+        ]},
+    ],
+    notes: '5 noches. Regreso a Barcelona el 10 junio desde Innsbruck vía Lyon. Vuelo de regreso a Santiago el 13 junio.',
   },
-  amsterdam: {
+  {
+    key: 'amsterdam',
+    dateMain: '26–29 mayo',
+    dur: '3 noches',
+    stay: 'Quentin Museum Square Hotel\nRoemer Visscherstraat 30\n1054 EZ Ámsterdam',
+    stayLabel: 'Hotel',
     arrival:   { date:'26 mayo', time:'8:35 AM' },
     departure: { date:'29 mayo', time:'Por definir' },
-    stay: 'Quentin Museum Square Hotel\nRoemer Visscherstraat 30, Oud-West\n1054 EZ Ámsterdam\n+31 20 689 2323', stayLabel: 'Hotel',
-    places: [
-      { name:'Rijksmuseum',           lat:52.3600, lng: 4.8852 },
-      { name:'Van Gogh Museum',       lat:52.3584, lng: 4.8811 },
-      { name:'Casa de Ana Frank',     lat:52.3752, lng: 4.8840 },
-      { name:'Canales (Jordaan)',      lat:52.3737, lng: 4.8839 },
-      { name:'Vondelpark',            lat:52.3580, lng: 4.8686 },
-      { name:'Mercado Albert Cuyp',   lat:52.3554, lng: 4.8952 },
-      { name:'NDSM Wharf',            lat:52.4008, lng: 4.8988 },
-    ],
-    transport: [
-      { type:'train',  name:'Tren — Salida', detail:'Amsterdam → Berlín\n29 mayo · horario por definir' },
-    ],
-    notes: '3 noches. Habitación Doble Estándar. Check-in 15:00–23:00 · Check-out 11:00. CL$ 447.718.',
+    arrivalBy: 'flight',
     badges: ['stay', 'train'],
+    transport: [
+      { type:'train', name:'Tren · Salida a Berlín', detail:'Amsterdam → Berlín\n29 mayo · horario por definir' },
+    ],
+    notes: '3 noches. Check-in 15:00–23:00, check-out 11:00. CL$ 447.718.',
   },
-  berlin: {
+  {
+    key: 'berlin',
+    dateMain: '29 mayo – 6 jun',
+    dur: '8 noches',
+    stay: 'Casa de Benja',
+    stayLabel: 'Casa de amigo',
     arrival:   { date:'29 mayo', time:'Por definir' },
     departure: { date:'6 junio', time:'Por definir' },
-    stay: 'Casa de Benja', stayLabel: 'Casa de amigo',
-    places: [
-      { name:'Puerta de Brandenburgo', lat:52.5163, lng:13.3777 },
-      { name:'East Side Gallery',      lat:52.5051, lng:13.4398 },
-      { name:'Checkpoint Charlie',     lat:52.5075, lng:13.3904 },
-      { name:'Museo de Pérgamo',       lat:52.5211, lng:13.3968 },
-      { name:'Tiergarten',             lat:52.5144, lng:13.3501 },
-      { name:'Alexanderplatz',         lat:52.5219, lng:13.4132 },
-      { name:'Neukölln',               lat:52.4783, lng:13.4346 },
-      { name:'Markthalle Neun',        lat:52.4986, lng:13.4210 },
-    ],
-    transport: [
-      { type:'train', name:'Tren — Llegada', detail:'Amsterdam → Berlín\n29 mayo · horario por definir' },
-      { type:'train', name:'Tren — Salida',  detail:'Berlín → Innsbruck\n6 junio · horario por definir' },
-    ],
-    notes: '8 noches. Horarios de tren pendientes de confirmar.',
+    arrivalBy: 'train',
     badges: ['stay', 'train'],
+    transport: [
+      { type:'train', name:'Tren · Salida a Innsbruck', detail:'Berlín → Innsbruck\n6 junio · horario por definir' },
+    ],
+    notes: '8 noches. Horarios de tren pendientes.',
   },
-  innsbruck: {
+  {
+    key: 'innsbruck',
+    dateMain: '6–10 junio',
+    dur: '4 noches',
+    stay: 'Casa de Simón',
+    stayLabel: 'Casa de amigo',
     arrival:   { date:'6 junio',  time:'Por definir' },
     departure: { date:'10 junio', time:'Por definir' },
-    stay: 'Casa de Simón', stayLabel: 'Casa de amigo',
-    places: [
-      { name:'Goldenes Dachl',         lat:47.2682, lng:11.3933 },
-      { name:'Hofburg',                lat:47.2679, lng:11.3931 },
-      { name:'Nordkette (Teleférico)', lat:47.3168, lng:11.3913 },
-      { name:'Altstadt',               lat:47.2682, lng:11.3925 },
-      { name:'Ambras Castle',          lat:47.2567, lng:11.4230 },
-      { name:'Bergisel',               lat:47.2478, lng:11.3883 },
-    ],
-    transport: [
-      { type:'train', name:'Tren — Llegada', detail:'Berlín → Innsbruck\n6 junio · horario por definir' },
-      { type:'train', name:'Tren — Salida',  detail:'Innsbruck → Lyon → Barcelona\n10 junio · horario por definir' },
-    ],
-    notes: '4 noches. Tren de regreso a Barcelona con parada en Lyon el 10 junio.',
+    arrivalBy: 'train',
     badges: ['stay', 'train'],
+    transport: [
+      { type:'train', name:'Tren · Salida a Lyon → Barcelona', detail:'Innsbruck → Lyon → Barcelona\n10 junio · horario por definir' },
+    ],
+    notes: '4 noches. Regreso a Barcelona vía Lyon el 10 junio.',
   },
-  lyon: {
+  {
+    key: 'lyon',
+    dateMain: '10 junio',
+    dur: 'Parada',
+    stay: null,
+    stayLabel: null,
     arrival:   { date:'10 junio', time:'Por definir' },
     departure: { date:'10 junio', time:'Por definir' },
-    stay: 'Parada en tránsito', stayLabel: null,
+    arrivalBy: 'train',
+    badges: ['transit'],
     transport: [
-      { type:'train', name:'Tren — Parada', detail:'Innsbruck → Lyon → Barcelona\n10 junio · horario por definir' },
+      { type:'train', name:'Tren · Continúa a Barcelona', detail:'Lyon → Barcelona\n10 junio · horario por definir' },
     ],
     notes: 'Parada intermedia en el trayecto Innsbruck–Barcelona.',
-    badges: ['train'],
   },
-};
+  {
+    key: 'barcelona2',
+    dateMain: '10–13 junio',
+    dur: '3 noches · Regreso',
+    stay: 'Casa de Beto & Pablo',
+    stayLabel: 'Casa de amigo',
+    arrival:   { date:'10 junio', time:'Por definir' },
+    departure: { date:'13 junio', time:'14:00 PM' },
+    arrivalBy: 'train',
+    badges: ['stay', 'flight'],
+    transport: [
+      { type:'flight', name:'AV 19 · Regreso a Bogotá', detail:'BCN → BOG\n13 junio · 14:00 → 18:10',
+        pdf:[{label:'Pasaje Vicente',url:'pasaje-vicente-avianca.pdf'},{label:'Pasaje Ignacio',url:'pasaje-ignacio-avianca.pdf'}],
+        passengers:[
+          { name:'Vicente Javier Puig Hortal',         reserva:'CAIBH6', billete:'202 2488482706', ff:'005344916930', maleta:'1 bolso 23 kg' },
+          { name:'Ignacio Andrés Rodríguez Sepúlveda', reserva:'CAIBH6', billete:'202 2488482707', ff:null,           maleta:'No incluida' },
+        ]},
+    ],
+    notes: 'Última parada antes del regreso. Vuelo a Bogotá el 13 junio, continúa a Santiago esa misma noche.',
+  },
+];
+
+// Connectors between stops
+const CONNECTORS = [
+  { type:'flight', label:'AV 98', route:'SCL → BOG', detail:'20 mayo · 06:10 → 11:10' },
+  { type:'flight', label:'AV 18', route:'BOG → BCN', detail:'20 mayo · 16:00 → 09:00+1' },
+  { type:'flight', label:'KL 1510', route:'BCN → AMS', detail:'26 mayo · 06:20 → 08:35' },
+  { type:'train',  label:'Tren',   route:'AMS → BER', detail:'29 mayo · por definir' },
+  { type:'train',  label:'Tren',   route:'BER → INN', detail:'6 junio · por definir' },
+  { type:'train',  label:'Tren',   route:'INN → LYO', detail:'10 junio · por definir' },
+  { type:'train',  label:'Tren',   route:'LYO → BCN', detail:'10 junio · por definir' },
+];
 
 const INSURANCE = {
-  nombre: 'Certificado de Viaje — Visa Signature',
-  cobertura: '20 mayo – 13 junio 2026 · Cobertura Schengen €30,000 · Emergencia USD 150,000',
-  emisor: 'Indemnity Insurance Co. of North America (AXA Assistance USA)',
+  nombre:   'Certificado de Viaje — Visa Signature',
+  cobertura:'20 mayo – 13 junio 2026 · Schengen €30,000 · Emergencia USD 150,000',
+  emisor:   'Indemnity Insurance Co. of North America (AXA Assistance USA)',
   emergencia_local: '+1 (303) 967-1098',
-  emergencia_usa: '+1 (800) 396 9665',
+  emergencia_usa:   '+1 (800) 396 9665',
   pasajeros: [
-    {
-      nombre: 'Vicente Javier Puig Hortal',
-      pasaporte: 'F60982264',
-      nacimiento: '04/07/1998',
-      certificado: '16011-0001-69-269462776 / CER-6903431',
-      pdf: 'seguro-vicente.pdf',
-    },
-    {
-      nombre: 'Ignacio Andrés Rodríguez Sepúlveda',
-      pasaporte: 'F49536242',
-      nacimiento: '11/08/1995',
-      certificado: '16011-0001-69-269462795 / CER-6903443',
-      pdf: 'seguro-ignacio.pdf',
-    },
+    { nombre:'Vicente Javier Puig Hortal',         pasaporte:'F60982264', nacimiento:'04/07/1998', certificado:'16011-0001-69-269462776 / CER-6903431', pdf:'seguro-vicente.pdf' },
+    { nombre:'Ignacio Andrés Rodríguez Sepúlveda', pasaporte:'F49536242', nacimiento:'11/08/1995', certificado:'16011-0001-69-269462795 / CER-6903443', pdf:'seguro-ignacio.pdf' },
   ],
 };
 
-const ROUTES = [
-  { from:'santiago',  to:'bogota',    type:'flight', label:'AV 98',   date:'20 mayo',  time:'6:40 AM → 11:30 AM' },
-  { from:'bogota',    to:'barcelona', type:'flight', label:'AV 18',   date:'20 mayo',  time:'3:35 PM → 8:45 AM +1' },
-  { from:'barcelona', to:'amsterdam', type:'flight', label:'KL 1510', date:'26 mayo',  time:'6:20 AM → 8:35 AM' },
-  { from:'amsterdam', to:'berlin',    type:'train',  label:'Tren',    date:'29 mayo',  time:'Por definir' },
-  { from:'berlin',    to:'innsbruck', type:'train',  label:'Tren',    date:'6 junio',  time:'Por definir' },
-  { from:'innsbruck', to:'lyon',      type:'train',  label:'Tren',    date:'10 junio', time:'Por definir' },
-  { from:'lyon',      to:'barcelona', type:'train',  label:'Tren',    date:'10 junio', time:'Por definir' },
-  { from:'barcelona', to:'bogota',    type:'flight', label:'AV 19',   date:'13 junio', time:'1:50 PM → 5:45 PM' },
-  { from:'bogota',    to:'santiago',  type:'flight', label:'AV 97',   date:'13 junio', time:'9:35 PM → 4:45 AM +1' },
-];
+// ── Render itinerary ──────────────────────────────────────────────────────────
+const itinList = document.getElementById('itin-list');
+const badgeMap = {
+  flight:  { cls:'badge-flight', icon:IC.flight, label:'Vuelo' },
+  train:   { cls:'badge-train',  icon:IC.train,  label:'Tren' },
+  stay:    { cls:'badge-stay',   icon:IC.stay,   label:null },
+  transit: { cls:'badge-transit', icon:'', label:'Escala' },
+};
 
-// ── Map highlight ─────────────────────────────────────────────────────────────
-function flyTo(lng, lat){
-  const key = Object.keys(CITIES).find(k=>CITIES[k].lng===lng&&CITIES[k].lat===lat);
-  document.querySelectorAll('[id^="dot-"]').forEach(d=>d.setAttribute('fill','#F1F1F1'));
-  if(key){ const dot=document.getElementById('dot-'+key); if(dot) dot.setAttribute('fill','#341A02'); }
-}
+STOPS.forEach((stop, i) => {
+  const city = CITIES[stop.key];
+
+  // City card
+  const card = document.createElement('div');
+  card.className = 'city-card';
+
+  const stayLine = stop.stayLabel
+    ? `<div class="cc-stay">${IC.stay.replace('fill="#F1F1F1"','fill="rgba(52,26,2,.55)"')} ${stop.stayLabel}: ${stop.stay.split('\n')[0]}</div>`
+    : (stop.stay ? `<div class="cc-stay" style="color:rgba(52,26,2,.38);font-size:.62rem">${stop.stay}</div>` : '');
+
+  const badges = stop.badges.map(b => {
+    const { cls, icon, label } = badgeMap[b];
+    const lbl = b === 'stay' ? (stop.stayLabel || 'Alojamiento') : label;
+    return `<span class="badge ${cls}">${icon}${lbl}</span>`;
+  }).join('');
+
+  card.innerHTML = `
+    <div class="city-card-head">
+      <div class="cc-left">
+        <div class="cc-name">${city.name}</div>
+        <div class="cc-country">${city.country}</div>
+        ${stayLine}
+        <div class="cc-badges">${badges}</div>
+      </div>
+      <div class="cc-right">
+        <div class="cc-date">${stop.dateMain}</div>
+        <div class="cc-dur">${stop.dur}</div>
+      </div>
+    </div>`;
+
+  card.addEventListener('click', () => openSheet(stop));
+  itinList.appendChild(card);
+
+  // Connector to next stop
+  if (i < CONNECTORS.length) {
+    const conn = CONNECTORS[i];
+    const isFlight = conn.type === 'flight';
+    const tc = document.createElement('div');
+    tc.className = 'tc-block';
+    tc.innerHTML = `
+      <div class="tc-spine"></div>
+      <div class="tc-content">
+        <div class="tc-route ${isFlight ? 'tc-line-flight' : 'tc-line-train'}">
+          ${isFlight ? IC.flight : IC.train}
+          ${conn.label} · ${conn.route}
+        </div>
+        <div class="tc-detail">${conn.detail}</div>
+      </div>`;
+    itinList.appendChild(tc);
+  }
+});
+
+// ── Render documents ──────────────────────────────────────────────────────────
+const docPasses = document.getElementById('doc-passes');
+
+// Avianca pass
+const aviancaPass = document.createElement('div');
+aviancaPass.className = 'pass';
+aviancaPass.innerHTML = `
+  <div class="pass-hdr">
+    <div class="pass-type">Avianca · CAIBH6</div>
+    <div class="pass-route">Santiago → Bogotá → Barcelona</div>
+    <div class="pass-sub">20 mayo 2026 · Ida y Vuelta</div>
+  </div>
+  <div class="pass-sep"></div>
+  <div class="pass-body">
+    <div class="pass-field-row">
+      <div class="pf"><div class="pf-label">Origen</div><div class="pf-val">SCL</div></div>
+      <div class="pf"><div class="pf-label">Escalas</div><div class="pf-val">BOG</div></div>
+      <div class="pf"><div class="pf-label">Destino</div><div class="pf-val">BCN</div></div>
+    </div>
+    <div class="divider" style="margin:10px 0 8px"></div>
+    <div class="pass-row">
+      <div>
+        <div class="pr-name">Vicente Javier Puig Hortal</div>
+        <div class="pr-meta" style="text-align:left;margin-top:3px">Billete 202 2488482706 · FF 005344916930<br>Maleta: 1 bolso 23 kg</div>
+      </div>
+    </div>
+    <div class="pass-row">
+      <div>
+        <div class="pr-name">Ignacio Andrés Rodríguez Sepúlveda</div>
+        <div class="pr-meta" style="text-align:left;margin-top:3px">Billete 202 2488482707 · Sin FF<br>Maleta: No incluida</div>
+      </div>
+    </div>
+  </div>
+  <div class="pass-actions">
+    <a class="pass-btn" href="pasaje-vicente-avianca.pdf" target="_blank">${IC.flight} Pasaje Vicente</a>
+    <a class="pass-btn" href="pasaje-ignacio-avianca.pdf" target="_blank">${IC.flight} Pasaje Ignacio</a>
+  </div>`;
+docPasses.appendChild(aviancaPass);
+
+// KLM pass
+const klmPass = document.createElement('div');
+klmPass.className = 'pass';
+klmPass.innerHTML = `
+  <div class="pass-hdr">
+    <div class="pass-type">KLM · YQ2W6R</div>
+    <div class="pass-route">Barcelona → Amsterdam</div>
+    <div class="pass-sub">26 mayo 2026 · KL 1510</div>
+  </div>
+  <div class="pass-sep"></div>
+  <div class="pass-body">
+    <div class="pass-field-row">
+      <div class="pf"><div class="pf-label">Sale</div><div class="pf-val">BCN 06:20</div></div>
+      <div class="pf"><div class="pf-label">Llega</div><div class="pf-val">AMS 08:35</div></div>
+      <div class="pf"><div class="pf-label">Maletas</div><div class="pf-val">Por conf.</div></div>
+    </div>
+    <div class="divider" style="margin:10px 0 8px"></div>
+    <div class="pass-row">
+      <div>
+        <div class="pr-name">Vicente Javier Puig Hortal</div>
+        <div class="pr-meta" style="text-align:left;margin-top:3px">Billete 0742137220986 · FF 005344916930</div>
+      </div>
+    </div>
+    <div class="pass-row">
+      <div>
+        <div class="pr-name">Ignacio Andrés Rodríguez Sepúlveda</div>
+        <div class="pr-meta" style="text-align:left;margin-top:3px">Billete 0742137220987 · Sin FF</div>
+      </div>
+    </div>
+  </div>
+  <div class="pass-actions" style="color:rgba(52,26,2,.4);font-size:.65rem;padding:12px 16px;">
+    Pasaje PDF no disponible
+  </div>`;
+docPasses.appendChild(klmPass);
+
+// Insurance pass
+const insPass = document.createElement('div');
+insPass.className = 'pass';
+const insPaxRows = INSURANCE.pasajeros.map(p => `
+  <div class="ins-pax-row">
+    <div class="ins-pax-name">${p.nombre}</div>
+    <div class="ins-pax-meta">
+      Pasaporte ${p.pasaporte} · Nac. ${p.nacimiento}<br>
+      Cert. ${p.certificado}
+    </div>
+  </div>`).join('');
+const insPdfBtns = INSURANCE.pasajeros.map(p =>
+  `<a class="pass-btn" href="${p.pdf}" target="_blank">${IC.shield.replace('fill="#F1F1F1"','fill="#341A02"')} Seguro ${p.nombre.split(' ')[0]}</a>`
+).join('');
+insPass.innerHTML = `
+  <div class="pass-hdr">
+    <div class="pass-type">Seguro de Viaje · Visa Signature</div>
+    <div class="pass-route">Cobertura Schengen</div>
+    <div class="pass-sub">${INSURANCE.cobertura}</div>
+  </div>
+  <div class="pass-sep"></div>
+  <div class="pass-body">
+    ${insPaxRows}
+    <div class="ins-emerg">
+      <div class="ins-emerg-label">Emergencias</div>
+      <div class="ins-emerg-line">Fuera EEUU: ${INSURANCE.emergencia_local}</div>
+      <div class="ins-emerg-line">EEUU: ${INSURANCE.emergencia_usa}</div>
+    </div>
+  </div>
+  <div class="pass-actions">${insPdfBtns}</div>`;
+docPasses.appendChild(insPass);
 
 // ── Sheet ─────────────────────────────────────────────────────────────────────
-const sheet=document.getElementById('sheet');
-const backdrop=document.getElementById('sheet-backdrop');
-const sheetContent=document.getElementById('sheet-content');
+const sheet       = document.getElementById('sheet');
+const backdrop    = document.getElementById('sheet-backdrop');
+const sheetBody   = document.getElementById('sheet-body');
 
-function openSheet(key){
-  const city=CITIES[key], info=CITY_INFO[key];
-  if(!info) return;
+function openSheet(stop) {
+  const city = CITIES[stop.key];
 
-  // Dates
-  const datesHTML=`
-    <div class="dates-grid">
-      <div class="date-block">
-        <div class="date-tag">Llegada</div>
-        <div class="date-val">${info.arrival.date}</div>
-        <div class="date-time">${info.arrival.time}</div>
-      </div>
-      <div class="date-block">
-        <div class="date-tag">Salida</div>
-        <div class="date-val">${info.departure.date}</div>
-        <div class="date-time">${info.departure.time}</div>
-      </div>
+  const datesHTML = `
+    <div class="sh-dates-grid">
+      <div class="sh-date-block"><div class="tag">Llegada</div><div class="val">${stop.arrival.date}</div><div class="time">${stop.arrival.time}</div></div>
+      <div class="sh-date-block"><div class="tag">Salida</div><div class="val">${stop.departure.date}</div><div class="time">${stop.departure.time}</div></div>
     </div>`;
 
-  // Transport
-  const transportHTML=(info.transport||[]).map(t=>{
-    const pdfHTML=(t.pdf||[]).map(p=>
+  const transportHTML = (stop.transport || []).map(t => {
+    const pdfBtns = (t.pdf || []).map(p =>
       `<a class="pdf-btn" data-type="${t.type}" href="${p.url}" target="_blank">↓ ${p.label}</a>`
     ).join('');
-    const paxHTML=(t.passengers||[]).map(p=>`
-      <div class="pax-row">
-        <div class="pax-name">${p.name}</div>
-        <div class="pax-field"><span class="pax-label">Reserva</span><span class="pax-val">${p.reserva}</span></div>
-        <div class="pax-field"><span class="pax-label">Billete</span><span class="pax-val">${p.billete}</span></div>
-        <div class="pax-field"><span class="pax-label">Maleta</span><span class="pax-val">${p.maleta}</span></div>
-        ${p.ff?`<div class="pax-field"><span class="pax-label">Viajero frecuente</span><span class="pax-val">${p.ff}</span></div>`:''}
+    const paxRows = (t.passengers || []).map(p => `
+      <div class="sh-pax-row">
+        <div class="sp-name">${p.name}</div>
+        <div class="sp-field"><span class="sp-label">Reserva</span><span class="sp-val">${p.reserva}</span></div>
+        <div class="sp-field"><span class="sp-label">Billete</span><span class="sp-val">${p.billete}</span></div>
+        <div class="sp-field"><span class="sp-label">Maleta</span><span class="sp-val">${p.maleta}</span></div>
+        ${p.ff ? `<div class="sp-field"><span class="sp-label">FF</span><span class="sp-val">${p.ff}</span></div>` : ''}
       </div>`).join('');
     return `
-    <div class="transport-row">
-      <div class="tr-icon">${t.type==='flight'?IC.flightUi:IC.trainUi}</div>
-      <div class="tr-body">
-        <div class="tr-header">
-          <div class="tr-name">${t.name}</div>
-          ${pdfHTML?`<div style="display:flex;gap:4px">${pdfHTML}</div>`:''}
+      <div class="tr-row">
+        <div style="flex-shrink:0;margin-top:1px;color:#341A02">${t.type==='flight'?IC.flight:IC.train}</div>
+        <div class="tr-body">
+          <div class="tr-head">
+            <div class="tr-name">${t.name}</div>
+            ${pdfBtns ? `<div style="display:flex;gap:4px">${pdfBtns}</div>` : ''}
+          </div>
+          <div class="tr-detail">${t.detail.replace(/\n/g,'<br>')}</div>
+          ${paxRows ? `<div class="sh-pax">${paxRows}</div>` : ''}
         </div>
-        <div class="tr-detail">${t.detail.replace(/\n/g,'<br>')}</div>
-        ${paxHTML?`<div class="passengers">${paxHTML}</div>`:''}
-      </div>
-    </div>`;
+      </div>`;
   }).join('');
 
-  // Places
-  const pinIcon=`<svg xmlns="http://www.w3.org/2000/svg" height="11" viewBox="0 -960 960 960" width="11" fill="currentColor"><path d="M480-480q33 0 56.5-23.5T560-560q0-33-23.5-56.5T480-640q-33 0-56.5 23.5T400-560q0 33 23.5 56.5T480-480Zm0 294q122-112 181-203.5T720-560q0-109-69.5-184.5T480-820q-101 0-170.5 75.5T240-560q0 71 59 162.5T480-186Z"/></svg>`;
-  const placesHTML=(info.places||[]).length>0?`
+  const staySection = stop.stayLabel ? `
     <div class="divider"></div>
-    <div class="sc-section">
-      <div class="sc-label">Lugares recomendados</div>
-      <div class="places-grid">
-        ${(info.places||[]).map(p=>`<span class="place-tag">${pinIcon}${p.name}</span>`).join('')}
-      </div>
-    </div>`:'';
+    <div class="sh-label">Alojamiento</div>
+    <div style="font-size:.8rem;line-height:1.5;white-space:pre-line">${stop.stay}</div>` : '';
 
-  // Stay
-  const stayHTML=info.stayLabel?`
-    <div class="sc-section">
-      <div class="sc-label">Alojamiento</div>
-      <div class="sc-value" style="white-space:pre-line">${info.stay}</div>
-    </div><div class="divider"></div>`:'';
-
-  // Badges
-  const badgeMap={
-    flight:{cls:'badge-flight',icon:IC.flightUi,label:'Vuelo'},
-    train: {cls:'badge-train', icon:IC.trainUi,  label:'Tren'},
-    stay:  {cls:'badge-stay',  icon:IC.stayLight, label: info.stayLabel||'Alojamiento'},
-  };
-  const badges=(info.badges||[]).filter(b=>!(b==='stay'&&!info.stayLabel)).map(b=>{
-    const{cls,icon,label}=badgeMap[b];
-    return `<span class="badge ${cls}">${icon}${label}</span>`;
+  const badges = stop.badges.map(b => {
+    const { cls, icon, label } = badgeMap[b];
+    const lbl = b==='stay' ? (stop.stayLabel||'Alojamiento') : label;
+    return `<span class="badge ${cls}">${icon}${lbl}</span>`;
   }).join('');
 
-  sheetContent.innerHTML=`
-    <div class="sc-city">${city.name}</div>
-    <div class="sc-country">${city.country}</div>
+  sheetBody.innerHTML = `
+    <div class="sh-city">${city.name}</div>
+    <div class="sh-country">${city.country}</div>
     <div class="divider"></div>
-
-    <div class="sc-section">
-      <div class="sc-label">Fechas</div>
-      ${datesHTML}
-    </div>
+    <div class="sh-label">Fechas</div>
+    ${datesHTML}
+    ${staySection}
     <div class="divider"></div>
-
-    ${stayHTML}
-
-    <div class="sc-section">
-      <div class="sc-label">Transporte</div>
-      ${transportHTML}
-    </div>
+    <div class="sh-label">Transporte</div>
+    ${transportHTML}
     <div class="divider"></div>
+    <div class="sh-label">Notas</div>
+    <div class="notes-box"><p>${stop.notes}</p></div>
+    <div class="sh-badges">${badges}</div>`;
 
-    <div class="sc-section">
-      <div class="sc-label">Notas</div>
-      <div class="notes-box"><p>${info.notes}</p></div>
-    </div>
-
-    ${placesHTML}
-
-    <div class="badges">${badges}</div>
-  `;
-
-  backdrop.style.display='block';
-  requestAnimationFrame(()=>{ backdrop.classList.add('visible'); sheet.classList.add('open'); });
-  flyTo(city.lng,city.lat);
+  backdrop.style.display = 'block';
+  requestAnimationFrame(() => { backdrop.classList.add('visible'); sheet.classList.add('open'); });
 }
 
-function closeSheet(){
-  sheet.classList.remove('open'); backdrop.classList.remove('visible');
-  setTimeout(()=>{ backdrop.style.display='none'; },300);
-  document.querySelectorAll('[id^="dot-"]').forEach(d=>d.setAttribute('fill','#F1F1F1'));
+function closeSheet() {
+  sheet.classList.remove('open');
+  backdrop.classList.remove('visible');
+  setTimeout(() => { backdrop.style.display = 'none'; }, 300);
 }
 
-let sheetStartY=0;
-sheet.addEventListener('touchstart', e=>{ sheetStartY=e.touches[0].clientY; },{passive:true});
-sheet.addEventListener('touchmove',  e=>{ if(e.touches[0].clientY-sheetStartY>60) closeSheet(); },{passive:true});
+let sheetStartY = 0;
+sheet.addEventListener('touchstart', e => { sheetStartY = e.touches[0].clientY; }, { passive: true });
+sheet.addEventListener('touchmove',  e => { if (e.touches[0].clientY - sheetStartY > 60) closeSheet(); }, { passive: true });
 
-// ── Quick access tags ─────────────────────────────────────────────────────────
-const QUICK_ITEMS = [
-  {
-    id: 'seguro',
-    label: 'Seguro de Viaje',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" height="12" viewBox="0 -960 960 960" width="12" fill="#341A02"><path d="M480-80q-139-35-229.5-159.5T160-516v-244l320-120 320 120v244q0 152-90.5 276.5T480-80Z"/></svg>`,
-    render: () => {
-      const paxRows = INSURANCE.pasajeros.map(p => `
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:0.75px solid rgba(52,26,2,.15)">
-          <div style="flex:1;min-width:0">
-            <div style="font-size:.75rem;font-weight:600;color:#341A02;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.nombre}</div>
-            <div style="font-size:.65rem;color:rgba(52,26,2,.5);margin-top:2px">Pasaporte: ${p.pasaporte} · Nac: ${p.nacimiento}</div>
-            <div style="font-size:.63rem;color:rgba(52,26,2,.45);margin-top:1px">Cert: ${p.certificado}</div>
-          </div>
-          <a class="pdf-btn" href="${p.pdf}" target="_blank" style="flex-shrink:0">↓ PDF</a>
-        </div>`).join('');
+// ── Wallet stack ──────────────────────────────────────────────────────────────
+const PEEK = 62; // px of each background card visible below the front card
+let activePassIdx = 0;
 
-      return `
-        <div style="border-bottom:0.75px solid rgba(52,26,2,.15);padding-bottom:8px;margin-bottom:4px">
-          <div style="font-size:.72rem;font-weight:600;color:#341A02">${INSURANCE.nombre}</div>
-          <div style="font-size:.65rem;color:rgba(52,26,2,.5);margin-top:2px">${INSURANCE.cobertura}</div>
-        </div>
-        ${paxRows}
-        <div style="padding-top:8px;display:flex;gap:12px;align-items:center">
-          <div style="font-size:.65rem;color:rgba(52,26,2,.5)">
-            <div style="font-weight:600;color:rgba(52,26,2,.7);margin-bottom:1px">Emergencias</div>
-            <div>Fuera EEUU: ${INSURANCE.emergencia_local}</div>
-            <div>EEUU: ${INSURANCE.emergencia_usa}</div>
-          </div>
-        </div>`;
-    },
-  },
-];
+function layoutPasses() {
+  const passes = [...document.querySelectorAll('.pass')];
+  if (!passes.length) return;
 
-const qaContainer = document.getElementById('quick-access');
-QUICK_ITEMS.forEach(item => {
-  const block = document.createElement('div');
-  block.className = 'qa-block';
+  // Measure the active card's full height
+  const activeCard  = passes[activePassIdx];
+  const activeH     = activeCard.offsetHeight;
+  const stackEl     = document.getElementById('doc-passes');
+  stackEl.style.height = (activeH + (passes.length - 1) * PEEK) + 'px';
 
-  const tag = document.createElement('div');
-  tag.className = 'qa-tag';
-  tag.innerHTML = `${item.icon} ${item.label}`;
-
-  const panel = document.createElement('div');
-  panel.className = 'qa-panel';
-  panel.innerHTML = `<div class="qa-panel-inner">${item.render()}</div>`;
-
-  tag.addEventListener('click', () => {
-    const isOpen = tag.classList.contains('open');
-    document.querySelectorAll('.qa-tag').forEach(t => t.classList.remove('open'));
-    document.querySelectorAll('.qa-panel').forEach(p => p.classList.remove('open'));
-    if (!isOpen) {
-      tag.classList.add('open');
-      panel.classList.add('open');
-    }
+  passes.forEach((pass, i) => {
+    // order: 0 = front, 1 = second, 2 = third…
+    const order = (i - activePassIdx + passes.length) % passes.length;
+    pass.style.top     = order === 0 ? '0px' : (activeH + (order - 1) * PEEK) + 'px';
+    pass.style.zIndex  = passes.length + 1 - order;
+    pass.classList.toggle('pass-front', order === 0);
   });
+}
 
-  block.appendChild(tag);
-  block.appendChild(panel);
-  qaContainer.appendChild(block);
+// Tap any non-front card → bring it to front
+document.querySelectorAll('.pass').forEach((pass, i) => {
+  pass.addEventListener('click', () => {
+    if (i === activePassIdx) return;
+    activePassIdx = i;
+    layoutPasses();
+  });
 });
 
-// ── Timeline ──────────────────────────────────────────────────────────────────
-const tlScroll=document.getElementById('timeline-scroll');
-ROUTES.forEach((r,i)=>{
-  const div=document.createElement('div');
-  div.className='tl';
-  div.innerHTML=`
-    <div class="tl-header">
-      <div class="tl-date">${r.date}</div>
-      ${r.type==='flight'?IC.flightUi:IC.trainUi}
-    </div>
-    <div class="tl-route">${CITIES[r.from].name} → ${CITIES[r.to].name}</div>
-    <div class="tl-sub">${r.label} · ${r.time}</div>
-  `;
-  div.addEventListener('click',()=>{
-    document.querySelectorAll('.tl').forEach((el,j)=>el.classList.toggle('active',j===i));
-    flyTo((CITIES[r.from].lng+CITIES[r.to].lng)/2,(CITIES[r.from].lat+CITIES[r.to].lat)/2,1000);
-    openSheet(r.to);
-  });
-  tlScroll.appendChild(div);
-});
-
-// ── Init ──────────────────────────────────────────────────────────────────────
+// Init after two animation frames (so offsetHeight is accurate)
+requestAnimationFrame(() => requestAnimationFrame(layoutPasses));
+window.addEventListener('resize', layoutPasses);
 </script>
 </body>
 </html>
-```
